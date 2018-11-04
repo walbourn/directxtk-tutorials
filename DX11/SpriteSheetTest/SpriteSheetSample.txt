@@ -1,0 +1,18 @@
+#
+# Sprite sheet data for MonoGame.
+#
+# To learn how to import these sprites into your MonoGame project visit:
+# http://www.codeandweb.com/texturepacker/monogame
+#
+# Sprite sheet: SpriteSheetSample.png (204 x 200)
+# $TexturePacker:SmartUpdate:0368b25d54aeeee939136b8605cf8eb5:68e5ed36fde793856b1138fb021ac1d9:f18d998871cf5eafdd9feca9b014994a$
+#
+
+cat;0;2;2;66;100;100;100;0.5151515151515151;0.5
+glow1;0;2;104;64;64;64;64;0.5;0.5
+glow2;0;70;2;64;64;64;64;0.5;0.5
+glow3;0;136;2;64;64;64;64;0.5;0.5
+glow4;0;70;68;64;64;64;64;0.5;0.5
+glow5;0;68;134;64;64;64;64;0.5;0.5
+glow6;0;134;134;64;64;64;64;0.5;0.5
+glow7;0;136;68;64;64;64;64;0.5;0.5
