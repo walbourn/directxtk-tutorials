@@ -99,5 +99,7 @@ private:
 
     RECT                                                m_fullscreenRect;
     Microsoft::WRL::ComPtr<ID3D12Resource>              m_background;
+
+    RECT m_stretchRect;
 };
 

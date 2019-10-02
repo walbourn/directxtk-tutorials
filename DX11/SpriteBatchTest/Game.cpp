@@ -67,6 +67,7 @@ void Game::Render()
     m_spriteBatch->Begin();
     //m_spriteBatch->Begin( SpriteSortMode_Deferred, m_states->NonPremultiplied() );
     //_spriteBatch->Begin(SpriteSortMode_Deferred, nullptr, m_states->LinearWrap());
+    //m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->AlphaBlend(), m_states->PointClamp());
 
 #if 1
     m_spriteBatch->Draw(m_background.Get(), m_fullscreenRect);
@@ -79,8 +80,8 @@ void Game::Render()
     //m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin, cosf(time) + 2.f);
     //m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::Green, 0.f, m_origin);
     //m_spriteBatch->Draw(m_texture.Get(), m_screenPos, &m_tileRect, Colors::White, 0.f, m_origin);
+    //m_spriteBatch->Draw(m_texture.Get(), m_stretchRect, nullptr, Colors::White);
 #else
-
     m_spriteBatch->Begin(SpriteSortMode_BackToFront, m_states->NonPremultiplied());
     
     float time = float(m_timer.GetTotalSeconds());
@@ -400,6 +401,18 @@ void Game::CreateResources()
     m_fullscreenRect.top = 0;
     m_fullscreenRect.right = backBufferWidth;
     m_fullscreenRect.bottom = backBufferHeight;
+
+#if 0
+    m_stretchRect.left = backBufferWidth / 4;
+    m_stretchRect.top = backBufferHeight / 4;
+    m_stretchRect.right = m_stretchRect.left  + backBufferWidth / 2;
+    m_stretchRect.bottom = m_stretchRect.top + backBufferHeight / 2;
+#else
+    m_stretchRect.left = backBufferWidth / 16;
+    m_stretchRect.top = backBufferHeight / 16;
+    m_stretchRect.right = backBufferWidth - m_stretchRect.left;
+    m_stretchRect.bottom = backBufferHeight - m_stretchRect.top;
+#endif
 }
 
 void Game::OnDeviceLost()

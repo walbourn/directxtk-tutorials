@@ -124,12 +124,22 @@ void Game::Render()
     m_spriteBatch->End();
 #endif
 
-#if 1
+#if 0
     m_spriteBatch->Begin(m_commandList.Get());
 
     m_spriteBatch->Draw(m_resourceDescriptors->GetGpuHandle(Descriptors::Cat),
         GetTextureSize(m_texture.Get()),
         m_screenPos, &m_tileRect, Colors::White, 0.f, m_origin);
+
+    m_spriteBatch->End();
+#endif
+
+#if 1
+    m_spriteBatch->Begin(m_commandList.Get());
+
+    m_spriteBatch->Draw(m_resourceDescriptors->GetGpuHandle(Descriptors::Cat),
+        GetTextureSize(m_texture.Get()),
+        m_stretchRect, nullptr, Colors::White);
 
     m_spriteBatch->End();
 #endif
@@ -549,6 +559,11 @@ void Game::CreateResources()
     m_fullscreenRect.top = 0;
     m_fullscreenRect.right = backBufferWidth;
     m_fullscreenRect.bottom = backBufferHeight;
+
+    m_stretchRect.left = backBufferWidth / 4.f;
+    m_stretchRect.top = backBufferHeight / 4.f;
+    m_stretchRect.right = m_stretchRect.left + backBufferWidth / 2.f;
+    m_stretchRect.bottom = m_stretchRect.top + backBufferHeight / 2.f;
 }
 
 void Game::WaitForGpu() noexcept

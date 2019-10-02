@@ -76,4 +76,6 @@ private:
     RECT                                                m_tileRect;
     RECT                                                m_fullscreenRect;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>    m_background;
+
+    RECT                                                m_stretchRect;
 };
