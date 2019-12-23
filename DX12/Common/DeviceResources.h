@@ -11,6 +11,9 @@ namespace DX
     {
         virtual void OnDeviceLost() = 0;
         virtual void OnDeviceRestored() = 0;
+
+    protected:
+        ~IDeviceNotify() = default;
     };
 
     // Controls all the DirectX device resources.
@@ -24,7 +27,7 @@ namespace DX
                         DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT,
                         UINT backBufferCount = 2,
                         D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_11_0,
-                        unsigned int flags = 0);
+                        unsigned int flags = 0) noexcept(false);
         ~DeviceResources();
 
         void CreateDeviceResources();
@@ -33,7 +36,8 @@ namespace DX
         bool WindowSizeChanged(int width, int height);
         void HandleDeviceLost();
         void RegisterDeviceNotify(IDeviceNotify* deviceNotify) { m_deviceNotify = deviceNotify; }
-        void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT);
+        void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
+                     D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET);
         void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
         void WaitForGpu() noexcept;
 
@@ -43,6 +47,7 @@ namespace DX
         // Direct3D Accessors.
         ID3D12Device*               GetD3DDevice() const            { return m_d3dDevice.Get(); }
         IDXGISwapChain3*            GetSwapChain() const            { return m_swapChain.Get(); }
+        IDXGIFactory4*              GetDXGIFactory() const          { return m_dxgiFactory.Get(); }
         D3D_FEATURE_LEVEL           GetDeviceFeatureLevel() const   { return m_d3dFeatureLevel; }
         ID3D12Resource*             GetRenderTarget() const         { return m_renderTargets[m_backBufferIndex].Get(); }
         ID3D12Resource*             GetDepthStencil() const         { return m_depthStencil.Get(); }
@@ -60,7 +65,9 @@ namespace DX
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const
         {
-            return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_backBufferIndex, m_rtvDescriptorSize);
+            return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+                m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+                static_cast<INT>(m_backBufferIndex), m_rtvDescriptorSize);
         }
         CD3DX12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const
         {
@@ -72,7 +79,7 @@ namespace DX
         void GetAdapter(IDXGIAdapter1** ppAdapter);
         void UpdateColorSpace();
 
-        const static size_t MAX_BACK_BUFFER_COUNT = 3;
+        static const size_t MAX_BACK_BUFFER_COUNT = 3;
 
         UINT                                                m_backBufferIndex;
 
