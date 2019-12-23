@@ -65,7 +65,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> m_texture;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_cubemap;
 
-    enum Descriptors
+    enum Descriptors : size_t
     {
         Wood,
         EnvMap,

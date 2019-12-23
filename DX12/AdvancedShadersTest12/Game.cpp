@@ -58,6 +58,8 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
+    PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
+
     float time = float(timer.GetTotalSeconds());
 
     m_world = Matrix::CreateRotationZ(cosf(time) * 2.f);
@@ -65,6 +67,8 @@ void Game::Update(DX::StepTimer const& timer)
 #if 1
     m_effect->SetFresnelFactor(cosf(time * 2.f));
 #endif
+
+    PIXEndEvent();
 }
 #pragma endregion
 
