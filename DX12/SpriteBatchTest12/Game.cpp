@@ -240,6 +240,10 @@ void Game::OnResuming()
     // TODO: Game is being power-resumed (or returning from minimize).
 }
 
+void Game::OnWindowMoved()
+{
+}
+
 void Game::OnWindowSizeChanged(int width, int height)
 {
     m_outputWidth = std::max(width, 1);
