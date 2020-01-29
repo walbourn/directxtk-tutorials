@@ -21,13 +21,13 @@
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StepTimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AnimatedTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScrollingBackground.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\StepTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

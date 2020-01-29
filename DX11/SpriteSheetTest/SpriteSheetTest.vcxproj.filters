@@ -21,10 +21,10 @@
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StepTimer.h">
+    <ClInclude Include="SpriteSheet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpriteSheet.h">
+    <ClInclude Include="..\Common\StepTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
