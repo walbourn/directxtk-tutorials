@@ -1,4 +1,4 @@
-cbuffer VS_BLOOM_PARAMETERS : register(c0)
+cbuffer VS_BLOOM_PARAMETERS : register(b0)
 {
     float BloomThreshold;
     float BlurAmount;

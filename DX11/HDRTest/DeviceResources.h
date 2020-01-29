@@ -1,4 +1,4 @@
-﻿//
+//
 // DeviceResources.h - A wrapper for the Direct3D 11 device and swapchain
 //
 
@@ -11,20 +11,24 @@ namespace DX
     {
         virtual void OnDeviceLost() = 0;
         virtual void OnDeviceRestored() = 0;
+
+    protected:
+        ~IDeviceNotify() = default;
     };
 
     // Controls all the DirectX device resources.
     class DeviceResources
     {
     public:
-        static const unsigned int c_AllowTearing    = 0x1;
-        static const unsigned int c_EnableHDR       = 0x2;
+        static const unsigned int c_FlipPresent     = 0x1;
+        static const unsigned int c_AllowTearing    = 0x2;
+        static const unsigned int c_EnableHDR       = 0x4;
 
         DeviceResources(DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM,
                         DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT,
                         UINT backBufferCount = 2,
                         D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_10_0,
-                        unsigned int flags = 0);
+                        unsigned int flags = c_FlipPresent) noexcept;
 
         void CreateDeviceResources();
         void CreateWindowSizeDependentResources();
@@ -38,9 +42,10 @@ namespace DX
         RECT GetOutputSize() const { return m_outputSize; }
 
         // Direct3D Accessors.
-        ID3D11Device1*          GetD3DDevice() const                    { return m_d3dDevice.Get(); }
-        ID3D11DeviceContext1*   GetD3DDeviceContext() const             { return m_d3dContext.Get(); }
-        IDXGISwapChain1*        GetSwapChain() const                    { return m_swapChain.Get(); }
+        auto                    GetD3DDevice() const                    { return m_d3dDevice.Get(); }
+        auto                    GetD3DDeviceContext() const             { return m_d3dContext.Get(); }
+        auto                    GetSwapChain() const                    { return m_swapChain.Get(); }
+        auto                    GetDXGIFactory() const                  { return m_dxgiFactory.Get(); }
         D3D_FEATURE_LEVEL       GetDeviceFeatureLevel() const           { return m_d3dFeatureLevel; }
         ID3D11Texture2D*        GetRenderTarget() const                 { return m_renderTarget.Get(); }
         ID3D11Texture2D*        GetDepthStencil() const                 { return m_depthStencil.Get(); }

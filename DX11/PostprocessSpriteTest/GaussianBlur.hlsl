@@ -3,7 +3,7 @@ sampler TextureSampler : register(s0);
 
 #define SAMPLE_COUNT 15
 
-cbuffer VS_BLUR_PARAMETERS : register(c0)
+cbuffer VS_BLUR_PARAMETERS : register(b0)
 {
     float2 SampleOffsets[SAMPLE_COUNT];
     float SampleWeights[SAMPLE_COUNT];
