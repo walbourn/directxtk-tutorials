@@ -564,10 +564,10 @@ void Game::CreateResources()
     m_fullscreenRect.right = backBufferWidth;
     m_fullscreenRect.bottom = backBufferHeight;
 
-    m_stretchRect.left = backBufferWidth / 4.f;
-    m_stretchRect.top = backBufferHeight / 4.f;
-    m_stretchRect.right = m_stretchRect.left + backBufferWidth / 2.f;
-    m_stretchRect.bottom = m_stretchRect.top + backBufferHeight / 2.f;
+    m_stretchRect.left = backBufferWidth / 4;
+    m_stretchRect.top = backBufferHeight / 4;
+    m_stretchRect.right = m_stretchRect.left + backBufferWidth / 2;
+    m_stretchRect.bottom = m_stretchRect.top + backBufferHeight / 2;
 }
 
 void Game::WaitForGpu() noexcept
