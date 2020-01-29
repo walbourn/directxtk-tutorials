@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include <WinSDKVer.h>
+#include <winsdkver.h>
 #define _WIN32_WINNT 0x0A00
-#include <SDKDDKVer.h>
+#include <sdkddkver.h>
 
 // Use the C++ standard templated min/max
 #define NOMINMAX
@@ -27,7 +27,7 @@
 #define NOHELP
 
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <Windows.h>
 
 #include <wrl/client.h>
 #include <wrl/event.h>
@@ -51,6 +51,9 @@
 #include <stdexcept>
 
 #include <stdio.h>
+
+// To use graphics and CPU markup events with the latest version of PIX, change this to include <pix3.h>
+// then add the NuGet package WinPixEventRuntime to the project.
 #include <pix.h>
 
 #ifdef _DEBUG
@@ -90,8 +93,8 @@ namespace DX
 
         virtual const char* what() const override
         {
-            static char s_str[64] = { 0 };
-            sprintf_s(s_str, "Failure with HRESULT of %08X", result);
+            static char s_str[64] = {};
+            sprintf_s(s_str, "Failure with HRESULT of %08X", static_cast<unsigned int>(result));
             return s_str;
         }
 

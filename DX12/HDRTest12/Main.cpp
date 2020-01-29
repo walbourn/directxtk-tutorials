@@ -39,38 +39,31 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     // Register class and create window
     {
         // Register class
-        WNDCLASSEX wcex;
-        wcex.cbSize = sizeof(WNDCLASSEX);
+        WNDCLASSEXW wcex = {};
+        wcex.cbSize = sizeof(WNDCLASSEXW);
         wcex.style = CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = WndProc;
-        wcex.cbClsExtra = 0;
-        wcex.cbWndExtra = 0;
         wcex.hInstance = hInstance;
-        wcex.hIcon = LoadIcon(hInstance, L"IDI_ICON");
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wcex.hIcon = LoadIconW(hInstance, L"IDI_ICON");
+        wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-        wcex.lpszMenuName = nullptr;
         wcex.lpszClassName = L"HDRTest12WindowClass";
-        wcex.hIconSm = LoadIcon(wcex.hInstance, L"IDI_ICON");
-        if (!RegisterClassEx(&wcex))
+        wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
+        if (!RegisterClassExW(&wcex))
             return 1;
 
         // Create window
         int w, h;
         g_game->GetDefaultSize(w, h);
 
-        RECT rc;
-        rc.top = 0;
-        rc.left = 0;
-        rc.right = static_cast<LONG>(w); 
-        rc.bottom = static_cast<LONG>(h);
+        RECT rc = { 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
 
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-        HWND hwnd = CreateWindowEx(0, L"HDRTest12WindowClass", L"HDRTest12", WS_OVERLAPPEDWINDOW,
+        HWND hwnd = CreateWindowExW(0, L"HDRTest12WindowClass", L"HDRTest12", WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
             nullptr);
-        // TODO: Change to CreateWindowEx(WS_EX_TOPMOST, L"HDRTest12WindowClass", L"HDRTest12", WS_POPUP,
+        // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"HDRTest12WindowClass", L"HDRTest12", WS_POPUP,
         // to default to fullscreen.
 
         if (!hwnd)
@@ -87,7 +80,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     }
 
     // Main message loop
-    MSG msg = { 0 };
+    MSG msg = {};
     while (WM_QUIT != msg.message)
     {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -102,8 +95,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     }
 
     g_game.reset();
-
-    CoUninitialize();
 
     return (int) msg.wParam;
 }
@@ -125,8 +116,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_PAINT:
-        hdc = BeginPaint(hWnd, &ps);
-        EndPaint(hWnd, &ps);
+        if (s_in_sizemove && game)
+        {
+            game->Tick();
+        }
+        else
+        {
+            hdc = BeginPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps);
+        }
+        break;
+
+    case WM_MOVE:
+        if (game)
+        {
+            game->OnWindowMoved();
+        }
         break;
 
     case WM_SIZE:
