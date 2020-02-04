@@ -262,10 +262,10 @@ void Game::PostProcess()
         m_spriteBatch->Begin(SpriteSortMode_Immediate, nullptr, nullptr, nullptr, nullptr,
             [=](){
                 m_d3dContext->PSSetShader(m_bloomCombinePS.Get(), nullptr, 0);
-                m_d3dContext->PSSetShaderResources(1, 1, m_sceneSRV.GetAddressOf());
+                m_d3dContext->PSSetShaderResources(1, 1, m_rt1SRV.GetAddressOf());
                 m_d3dContext->PSSetConstantBuffers(0, 1, m_bloomParams.GetAddressOf());
             });
-        m_spriteBatch->Draw(m_rt1SRV.Get(), m_fullscreenRect);
+        m_spriteBatch->Draw(m_sceneSRV.Get(), m_fullscreenRect);
         m_spriteBatch->End();
         #endif
         #endif
