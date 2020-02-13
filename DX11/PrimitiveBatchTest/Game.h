@@ -68,17 +68,27 @@ private:
 
 #if 0
     using VertexType = DirectX::VertexPositionColor;
-#else
+#elif 0
     using VertexType = DirectX::VertexPositionTexture;
+#else
+    using VertexType = DirectX::VertexPositionNormalTexture;
 #endif
 
     std::unique_ptr<DirectX::CommonStates>          m_states;
+
+#if 0
     std::unique_ptr<DirectX::BasicEffect>           m_effect;
+#else
+    std::unique_ptr<DirectX::NormalMapEffect>       m_effect;
+#endif
+
     std::unique_ptr<DirectX::PrimitiveBatch<VertexType>>  m_batch;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState>   m_raster;
     Microsoft::WRL::ComPtr<ID3D11InputLayout>       m_inputLayout;
 
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
+
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalMap;
 
     DirectX::SimpleMath::Matrix m_world;
     DirectX::SimpleMath::Matrix m_view;

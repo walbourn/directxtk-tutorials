@@ -56,6 +56,20 @@ void Game::Update(DX::StepTimer const& timer)
 #if 0
     m_world = Matrix::CreateRotationY(cosf(static_cast<float>(timer.GetTotalSeconds())));
 #endif
+
+#if 1
+    auto time = static_cast<float>(m_timer.GetTotalSeconds());
+
+    float yaw = time * 0.4f;
+    float pitch = time * 0.7f;
+    float roll = time * 1.1f;
+
+    auto quat = Quaternion::CreateFromYawPitchRoll(pitch, yaw, roll);
+
+    auto light = XMVector3Rotate(g_XMOne, quat);
+
+    m_effect->SetLightDirection(0, light);
+#endif
 }
 
 // Draws the scene
@@ -97,10 +111,14 @@ void Game::Render()
     VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Yellow);
     VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Yellow);
     VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Yellow);
-#else
+#elif 0
     VertexPositionTexture v1(Vector3(400.f, 150.f, 0.f), Vector2(.5f, 0));
     VertexPositionTexture v2(Vector3(600.f, 450.f, 0.f), Vector2(1, 1));
     VertexPositionTexture v3(Vector3(200.f, 450.f, 0.f), Vector2(0, 1));
+#else
+    VertexPositionNormalTexture v1(Vector3(400.f, 150.f, 0.f), -Vector3::UnitZ, Vector2(.5f, 0));
+    VertexPositionNormalTexture v2(Vector3(600.f, 450.f, 0.f), -Vector3::UnitZ, Vector2(1, 1));
+    VertexPositionNormalTexture v3(Vector3(200.f, 450.f, 0.f), -Vector3::UnitZ, Vector2(0, 1));
 #endif
 
     m_batch->DrawTriangle(v1, v2, v3);
@@ -312,15 +330,31 @@ void Game::CreateDevice()
         CreateWICTextureFromFile(m_d3dDevice.Get(), L"rocks.jpg", nullptr,
             m_texture.ReleaseAndGetAddressOf()));
 
+    DX::ThrowIfFailed(
+        CreateDDSTextureFromFile(m_d3dDevice.Get(), L"rocks_normalmap.dds", nullptr,
+            m_normalMap.ReleaseAndGetAddressOf()));
+       
+
     // TODO: Initialize device dependent objects here (independent of window size)
     m_states = std::make_unique<CommonStates>(m_d3dDevice.Get());
 
-    m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
 #if 0
+    m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
     m_effect->SetVertexColorEnabled(true);
-#else
+#elif 0
+    m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
     m_effect->SetTextureEnabled(true);
     m_effect->SetTexture(m_texture.Get());
+#elif 0
+    m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
+    m_effect->SetTextureEnabled(true);
+    m_effect->SetTexture(m_texture.Get());
+#else
+    m_effect = std::make_unique<NormalMapEffect>(m_d3dDevice.Get());
+    m_effect->SetTexture(m_texture.Get());
+    m_effect->SetNormalTexture(m_normalMap.Get());
+    m_effect->EnableDefaultLighting();
+    m_effect->SetLightDiffuseColor(0, Colors::Gray);
 #endif
 
     void const* shaderByteCode;
@@ -515,6 +549,7 @@ void Game::OnDeviceLost()
     m_inputLayout.Reset();
     m_raster.Reset();
     m_texture.Reset();
+    m_normalMap.Reset();
 
     m_depthStencil.Reset();
     m_depthStencilView.Reset();
