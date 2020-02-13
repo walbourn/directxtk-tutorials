@@ -66,11 +66,19 @@ private:
     // Game state
     DX::StepTimer                                   m_timer;
 
+#if 0
+    using VertexType = DirectX::VertexPositionColor;
+#else
+    using VertexType = DirectX::VertexPositionTexture;
+#endif
+
     std::unique_ptr<DirectX::CommonStates>          m_states;
     std::unique_ptr<DirectX::BasicEffect>           m_effect;
-    std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>  m_batch;
+    std::unique_ptr<DirectX::PrimitiveBatch<VertexType>>  m_batch;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState>   m_raster;
     Microsoft::WRL::ComPtr<ID3D11InputLayout>       m_inputLayout;
+
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 
     DirectX::SimpleMath::Matrix m_world;
     DirectX::SimpleMath::Matrix m_view;

@@ -82,6 +82,9 @@ void Game::Render()
 
     m_effect->Apply(m_d3dContext.Get());
 
+    auto sampler = m_states->LinearClamp();
+    m_d3dContext->PSSetSamplers(0, 1, &sampler);
+
     m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
     m_batch->Begin();
@@ -90,10 +93,14 @@ void Game::Render()
     VertexPositionColor v1(Vector3(0.f, 0.5f, 0.5f), Colors::Yellow);
     VertexPositionColor v2(Vector3(0.5f, -0.5f, 0.5f), Colors::Yellow);
     VertexPositionColor v3(Vector3(-0.5f, -0.5f, 0.5f), Colors::Yellow);
-#else
+#elif 0
     VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Yellow);
     VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Yellow);
     VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Yellow);
+#else
+    VertexPositionTexture v1(Vector3(400.f, 150.f, 0.f), Vector2(.5f, 0));
+    VertexPositionTexture v2(Vector3(600.f, 450.f, 0.f), Vector2(1, 1));
+    VertexPositionTexture v3(Vector3(200.f, 450.f, 0.f), Vector2(0, 1));
 #endif
 
     m_batch->DrawTriangle(v1, v2, v3);
@@ -301,11 +308,20 @@ void Game::CreateDevice()
     }
 #endif
 
+    DX::ThrowIfFailed(
+        CreateWICTextureFromFile(m_d3dDevice.Get(), L"rocks.jpg", nullptr,
+            m_texture.ReleaseAndGetAddressOf()));
+
     // TODO: Initialize device dependent objects here (independent of window size)
     m_states = std::make_unique<CommonStates>(m_d3dDevice.Get());
 
     m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
+#if 0
     m_effect->SetVertexColorEnabled(true);
+#else
+    m_effect->SetTextureEnabled(true);
+    m_effect->SetTexture(m_texture.Get());
+#endif
 
     void const* shaderByteCode;
     size_t byteCodeLength;
@@ -313,10 +329,10 @@ void Game::CreateDevice()
     m_effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
 
     DX::ThrowIfFailed(
-        m_d3dDevice->CreateInputLayout(VertexPositionColor::InputElements, VertexPositionColor::InputElementCount,
+        m_d3dDevice->CreateInputLayout(VertexType::InputElements, VertexType::InputElementCount,
                                        shaderByteCode, byteCodeLength, m_inputLayout.ReleaseAndGetAddressOf()));
 
-    m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(m_d3dContext.Get());
+    m_batch = std::make_unique<PrimitiveBatch<VertexType>>(m_d3dContext.Get());
 
     m_world = Matrix::Identity;
 
@@ -498,6 +514,7 @@ void Game::OnDeviceLost()
     m_batch.reset();
     m_inputLayout.Reset();
     m_raster.Reset();
+    m_texture.Reset();
 
     m_depthStencil.Reset();
     m_depthStencilView.Reset();

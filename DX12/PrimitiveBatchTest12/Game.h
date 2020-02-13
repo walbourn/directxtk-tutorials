@@ -61,8 +61,25 @@ private:
     DX::StepTimer                                       m_timer;
 
     std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
+
+#if 0
+    using VertexType = DirectX::VertexPositionColor;
+#else
+    using VertexType = DirectX::VertexPositionTexture;
+#endif
+
     std::unique_ptr<DirectX::BasicEffect> m_effect;
-    std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;
+    std::unique_ptr<DirectX::PrimitiveBatch<VertexType>> m_batch;
+    std::unique_ptr<DirectX::CommonStates> m_states;
+
+    std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_texture;
+
+    enum Descriptors
+    {
+        Rocks,
+        Count
+    };
 
     DirectX::SimpleMath::Matrix m_world;
     DirectX::SimpleMath::Matrix m_view;

@@ -10,7 +10,7 @@ using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-#define MSAA
+//#define MSAA
 
 Game::Game() noexcept(false)
 {
@@ -66,7 +66,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
 
-#if 1
+#if 0
     m_world = Matrix::CreateRotationY(cosf(static_cast<float>(timer.GetTotalSeconds())));
 #endif
 
@@ -102,8 +102,11 @@ void Game::Render()
 
     Clear();
 
+    ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap(), m_states->Heap() };
+    commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+
     // TODO: Add your rendering code here.
-#if 1
+#if 0
     m_effect->SetWorld(m_world);
 #endif
 
@@ -111,23 +114,25 @@ void Game::Render()
 
     m_batch->Begin(commandList);
 
-#if 0
+#if 1
 #if 0
     VertexPositionColor v1(Vector3(0.f, 0.5f, 0.5f), Colors::Yellow);
     VertexPositionColor v2(Vector3(0.5f, -0.5f, 0.5f), Colors::Yellow);
     VertexPositionColor v3(Vector3(-0.5f, -0.5f, 0.5f), Colors::Yellow);
-#endif
-
-#if 0
+#elif 0
     VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Yellow);
     VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Yellow);
     VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Yellow);
+#else
+    VertexPositionTexture v1(Vector3(400.f, 150.f, 0.f), Vector2(.5f, 0));
+    VertexPositionTexture v2(Vector3(600.f, 450.f, 0.f), Vector2(1, 1));
+    VertexPositionTexture v3(Vector3(200.f, 450.f, 0.f), Vector2(0, 1));
 #endif
 
     m_batch->DrawTriangle(v1, v2, v3);
 #endif
 
-#if 1
+#if 0
     Vector3 xaxis(2.f, 0.f, 0.f);
     Vector3 yaxis(0.f, 0.f, 2.f);
     Vector3 origin = Vector3::Zero;
@@ -255,8 +260,8 @@ void Game::OnWindowSizeChanged(int width, int height)
 void Game::GetDefaultSize(int& width, int& height) const
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
-    width = 1920;
-    height = 1080;
+    width = 800;
+    height = 600;
 }
 #pragma endregion
 
@@ -284,16 +289,38 @@ void Game::CreateDeviceDependentResources()
 
     m_graphicsMemory = std::make_unique<GraphicsMemory>(device);
 
-    m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(device);
+    m_states = std::make_unique<CommonStates>(device);
+
+    m_resourceDescriptors = std::make_unique<DescriptorHeap>(device,
+        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+        D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+        Descriptors::Count);
+
+    ResourceUploadBatch resourceUpload(device);
+
+    resourceUpload.Begin();
+
+    DX::ThrowIfFailed(
+        CreateWICTextureFromFile(device, resourceUpload, L"rocks.jpg",
+            m_texture.ReleaseAndGetAddressOf()));
+
+    CreateShaderResourceView(device, m_texture.Get(),
+        m_resourceDescriptors->GetCpuHandle(Descriptors::Rocks));
+
+    auto uploadResourcesFinished = resourceUpload.End(m_deviceResources->GetCommandQueue());
+
+    uploadResourcesFinished.wait();
+
+    m_batch = std::make_unique<PrimitiveBatch<VertexType>>(device);
 
     RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
 #ifdef MSAA
     rtState.sampleDesc.Count = 4; // <--- 4x MSAA
 #endif
     
-#if 0
+#if 1
     EffectPipelineStateDescription pd(
-        &VertexPositionColor::InputLayout,
+        &VertexType::InputLayout,
         CommonStates::Opaque,
         CommonStates::DepthDefault,
 #if 0
@@ -308,9 +335,10 @@ void Game::CreateDeviceDependentResources()
         rtState);
 #endif
 
+
 #if 0
     EffectPipelineStateDescription pd(
-        &VertexPositionColor::InputLayout,
+        &VertexType::InputLayout,
         CommonStates::Opaque,
         CommonStates::DepthDefault,
         CommonStates::CullNone,
@@ -318,7 +346,7 @@ void Game::CreateDeviceDependentResources()
         D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 #endif
 
-#if 1
+#if 0
 #if 0
     // AA lines
     CD3DX12_RASTERIZER_DESC rastDesc(D3D12_FILL_MODE_SOLID, D3D12_CULL_MODE_NONE, FALSE,
@@ -334,7 +362,7 @@ void Game::CreateDeviceDependentResources()
 #endif
 
     EffectPipelineStateDescription pd(
-        &VertexPositionColor::InputLayout,
+        &VertexType::InputLayout,
         CommonStates::Opaque,
         CommonStates::DepthDefault,
         rastDesc,
@@ -342,7 +370,12 @@ void Game::CreateDeviceDependentResources()
         D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 #endif
 
+#if 0
     m_effect = std::make_unique<BasicEffect>(device, EffectFlags::VertexColor, pd);
+#else
+    m_effect = std::make_unique<BasicEffect>(device, EffectFlags::Texture, pd);
+    m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Rocks), m_states->LinearClamp());
+#endif
 
     m_world = Matrix::Identity;
 }
@@ -418,18 +451,18 @@ void Game::CreateWindowSizeDependentResources()
     device->CreateRenderTargetView(m_offscreenRenderTarget.Get(), nullptr, m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 #endif
 
-#if 0
-    Matrix proj = Matrix::CreateScale(2.f / float(backBufferWidth),
-        -2.f / float(backBufferHeight), 1.f)
+#if 1
+    Matrix proj = Matrix::CreateScale(2.f / float(size.right),
+        -2.f / float(size.bottom), 1.f)
         * Matrix::CreateTranslation(-1.f, 1.f, 0.f);
     m_effect->SetProjection(proj);
 #endif
 
-#if 1
+#if 0
     m_view = Matrix::CreateLookAt(Vector3(2.f, 2.f, 2.f),
         Vector3::Zero, Vector3::UnitY);
     m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-        float(size.right) / float(size.bottom), 0.1f, 10.f);
+        float(size.right) / float(fbottom), 0.1f, 10.f);
 
     m_effect->SetView(m_view);
     m_effect->SetProjection(m_proj);
@@ -442,6 +475,8 @@ void Game::OnDeviceLost()
     m_graphicsMemory.reset();
     m_effect.reset();
     m_batch.reset();
+    m_texture.Reset();
+    m_resourceDescriptors.reset();
 
     m_rtvDescriptorHeap.Reset();
     m_dsvDescriptorHeap.Reset();
