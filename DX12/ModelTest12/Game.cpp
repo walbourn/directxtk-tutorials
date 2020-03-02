@@ -196,7 +196,7 @@ void Game::CreateDeviceDependentResources()
 
     m_states = std::make_unique<CommonStates>(device);
 
-    m_model = Model::CreateFromSDKMESH(L"cup.sdkmesh");
+    m_model = Model::CreateFromSDKMESH(device, L"cup.sdkmesh");
 
     ResourceUploadBatch resourceUpload(device);
 
