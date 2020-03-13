@@ -25,8 +25,8 @@ public:
     void Tick();
 
     // IDeviceNotify
-    virtual void OnDeviceLost() override;
-    virtual void OnDeviceRestored() override;
+    void OnDeviceLost() override;
+    void OnDeviceRestored() override;
 
     // Messages
     void OnActivated();
