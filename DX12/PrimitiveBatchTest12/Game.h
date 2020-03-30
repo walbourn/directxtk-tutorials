@@ -64,20 +64,30 @@ private:
 
 #if 0
     using VertexType = DirectX::VertexPositionColor;
-#else
+#elif 0
     using VertexType = DirectX::VertexPositionTexture;
+#else
+    using VertexType = DirectX::VertexPositionNormalTexture;
 #endif
 
+#if 0
     std::unique_ptr<DirectX::BasicEffect> m_effect;
+#else
+    std::unique_ptr<DirectX::NormalMapEffect> m_effect;
+#endif
+
     std::unique_ptr<DirectX::PrimitiveBatch<VertexType>> m_batch;
     std::unique_ptr<DirectX::CommonStates> m_states;
 
     std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_texture;
 
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_normalMap;
+
     enum Descriptors
     {
         Rocks,
+        NormalMap,
         Count
     };
 

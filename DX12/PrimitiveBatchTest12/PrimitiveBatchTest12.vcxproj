@@ -189,6 +189,7 @@
   <ItemGroup>
     <Image Include="directx.ico" />
     <Image Include="rocks.jpg" />
+    <Image Include="rocks_normalmap.dds" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest" />

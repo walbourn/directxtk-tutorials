@@ -68,6 +68,18 @@ void Game::Update(DX::StepTimer const& timer)
 
 #if 0
     m_world = Matrix::CreateRotationY(cosf(static_cast<float>(timer.GetTotalSeconds())));
+#elif 1
+    auto time = static_cast<float>(m_timer.GetTotalSeconds());
+
+    float yaw = time * 0.4f;
+    float pitch = time * 0.7f;
+    float roll = time * 1.1f;
+
+    auto quat = Quaternion::CreateFromYawPitchRoll(pitch, yaw, roll);
+
+    auto light = XMVector3Rotate(g_XMOne, quat);
+
+    m_effect->SetLightDirection(0, light);
 #endif
 
     PIXEndEvent();
@@ -123,10 +135,14 @@ void Game::Render()
     VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Yellow);
     VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Yellow);
     VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Yellow);
-#else
+#elif 0
     VertexPositionTexture v1(Vector3(400.f, 150.f, 0.f), Vector2(.5f, 0));
     VertexPositionTexture v2(Vector3(600.f, 450.f, 0.f), Vector2(1, 1));
     VertexPositionTexture v3(Vector3(200.f, 450.f, 0.f), Vector2(0, 1));
+#else
+    VertexPositionNormalTexture v1(Vector3(400.f, 150.f, 0.f), -Vector3::UnitZ, Vector2(.5f, 0));
+    VertexPositionNormalTexture v2(Vector3(600.f, 450.f, 0.f), -Vector3::UnitZ, Vector2(1, 1));
+    VertexPositionNormalTexture v3(Vector3(200.f, 450.f, 0.f), -Vector3::UnitZ, Vector2(0, 1));
 #endif
 
     m_batch->DrawTriangle(v1, v2, v3);
@@ -307,6 +323,15 @@ void Game::CreateDeviceDependentResources()
     CreateShaderResourceView(device, m_texture.Get(),
         m_resourceDescriptors->GetCpuHandle(Descriptors::Rocks));
 
+#if 1
+    DX::ThrowIfFailed(
+        CreateDDSTextureFromFile(device, resourceUpload, L"rocks_normalmap.dds",
+            m_normalMap.ReleaseAndGetAddressOf()));
+
+    CreateShaderResourceView(device, m_normalMap.Get(),
+        m_resourceDescriptors->GetCpuHandle(Descriptors::NormalMap));
+#endif
+
     auto uploadResourcesFinished = resourceUpload.End(m_deviceResources->GetCommandQueue());
 
     uploadResourcesFinished.wait();
@@ -372,9 +397,15 @@ void Game::CreateDeviceDependentResources()
 
 #if 0
     m_effect = std::make_unique<BasicEffect>(device, EffectFlags::VertexColor, pd);
-#else
+#elif 0
     m_effect = std::make_unique<BasicEffect>(device, EffectFlags::Texture, pd);
     m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Rocks), m_states->LinearClamp());
+#else
+    m_effect = std::make_unique<NormalMapEffect>(device, EffectFlags::None, pd, false);
+    m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Rocks), m_states->LinearClamp());
+    m_effect->SetNormalTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::NormalMap));
+    m_effect->EnableDefaultLighting();
+    m_effect->SetLightDiffuseColor(0, Colors::Gray);
 #endif
 
     m_world = Matrix::Identity;
@@ -476,6 +507,7 @@ void Game::OnDeviceLost()
     m_effect.reset();
     m_batch.reset();
     m_texture.Reset();
+    m_normalMap.Reset();
     m_resourceDescriptors.reset();
 
     m_rtvDescriptorHeap.Reset();

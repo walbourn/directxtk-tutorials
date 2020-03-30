@@ -40,6 +40,9 @@
     <Image Include="rocks.jpg">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="rocks_normalmap.dds">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
