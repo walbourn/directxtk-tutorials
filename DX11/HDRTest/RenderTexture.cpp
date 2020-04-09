@@ -3,12 +3,8 @@
 //
 // Helper for managing offscreen render targets
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //-------------------------------------------------------------------------------------
 
 #include "pch.h"
@@ -51,7 +47,7 @@ void RenderTexture::SetDevice(_In_ ID3D11Device* device)
             throw std::exception("CheckFormatSupport");
         }
 
-        UINT32 required = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_SHADER_SAMPLE | D3D11_FORMAT_SUPPORT_RENDER_TARGET;
+        UINT32 required = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_RENDER_TARGET;
         if ((formatSupport & required) != required)
         {
 #ifdef _DEBUG
@@ -144,9 +140,8 @@ void RenderTexture::ReleaseDevice()
 void RenderTexture::SetWindow(const RECT& output)
 {
     // Determine the render target size in pixels.
-    size_t width = std::max<size_t>(output.right - output.left, 1);
-    size_t height = std::max<size_t>(output.bottom - output.top, 1);
+    auto width = size_t(std::max<LONG>(output.right - output.left, 1));
+    auto height = size_t(std::max<LONG>(output.bottom - output.top, 1));  
 
     SizeResources(width, height);
 }
-
