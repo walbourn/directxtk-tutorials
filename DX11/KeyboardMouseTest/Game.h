@@ -78,4 +78,9 @@ private:
 
     float                                           m_pitch;
     float                                           m_yaw;
+
+    DirectX::Keyboard::KeyboardStateTracker         m_keys;
+    DirectX::Mouse::ButtonStateTracker              m_mouseButtons;
+
+    DirectX::SimpleMath::Color                      m_roomColor;
 };

@@ -5,6 +5,8 @@
 #include "pch.h"
 #include "Game.h"
 
+extern void ExitGame();
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
@@ -25,6 +27,8 @@ Game::Game() :
     m_yaw(0)
 {
     m_cameraPos = START_POSITION.v;
+
+    m_roomColor = Colors::White;
 }
 
 // Initialize the Direct3D resources required to run.
@@ -71,6 +75,7 @@ void Game::Update(DX::StepTimer const& timer)
     elapsedTime;
 
     auto mouse = m_mouse->GetState();
+    m_mouseButtons.Update(mouse);
 
     if (mouse.positionMode == Mouse::MODE_RELATIVE)
     {
@@ -100,8 +105,12 @@ void Game::Update(DX::StepTimer const& timer)
     m_mouse->SetMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
     auto kb = m_keyboard->GetState();
-    if ( kb.Escape )
-        PostQuitMessage(0);
+    m_keys.Update(kb);
+
+    if (kb.Escape)
+    {
+        ExitGame();
+    }
 
     if (kb.Home)
     {
@@ -141,6 +150,18 @@ void Game::Update(DX::StepTimer const& timer)
 
     m_cameraPos = Vector3::Min(m_cameraPos, halfBound);
     m_cameraPos = Vector3::Max(m_cameraPos, -halfBound);
+
+    if (m_keys.pressed.Tab || m_mouseButtons.rightButton == Mouse::ButtonStateTracker::PRESSED)
+    {
+        if (m_roomColor == Colors::Red.v)
+            m_roomColor = Colors::Green;
+        else if (m_roomColor == Colors::Green.v)
+            m_roomColor = Colors::Blue;
+        else if (m_roomColor == Colors::Blue.v)
+            m_roomColor = Colors::White;
+        else
+            m_roomColor = Colors::Red;
+    }
 }
 
 // Draws the scene
@@ -162,7 +183,7 @@ void Game::Render()
     
     XMMATRIX view = XMMatrixLookAtRH(m_cameraPos, lookAt, Vector3::Up);
 
-    m_room->Draw(Matrix::Identity, view, m_proj, Colors::White, m_roomTex.Get());
+    m_room->Draw(Matrix::Identity, view, m_proj, m_roomColor, m_roomTex.Get());
 
     Present();
 }
@@ -203,6 +224,8 @@ void Game::Present()
 void Game::OnActivated()
 {
     // TODO: Game is becoming active window
+    m_keys.Reset();
+    m_mouseButtons.Reset();
 }
 
 void Game::OnDeactivated()
@@ -220,6 +243,8 @@ void Game::OnResuming()
     m_timer.ResetElapsedTime();
 
     // TODO: Game is being power-resumed (or returning from minimize)
+    m_keys.Reset();
+    m_mouseButtons.Reset();
 }
 
 void Game::OnWindowSizeChanged(int width, int height)
