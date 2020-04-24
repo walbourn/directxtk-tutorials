@@ -5,6 +5,8 @@
 #include "pch.h"
 #include "Game.h"
 
+extern void ExitGame();
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
@@ -65,7 +67,7 @@ void Game::Update(DX::StepTimer const& timer)
     {
         if (state.IsViewPressed())
         {
-            PostQuitMessage(0);
+            ExitGame();
         }
     #if 1
         else
