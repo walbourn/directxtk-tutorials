@@ -82,4 +82,9 @@ private:
     std::unique_ptr<std::mt19937> m_random;
 
     std::unique_ptr<DirectX::WaveBank> m_sounds;
+
+#if 0
+    std::unique_ptr<DirectX::WaveBank> m_music;
+    std::unique_ptr<DirectX::SoundStreamInstance> m_stream;
+#endif
 };

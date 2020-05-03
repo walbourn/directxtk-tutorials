@@ -24,6 +24,9 @@ Game::~Game()
     }
 
     m_nightLoop.reset();
+#if 0
+    m_stream.reset();
+#endif
 }
 
 // Initialize the Direct3D resources required to run.
@@ -54,21 +57,32 @@ void Game::Initialize(HWND window)
     {
     }
 
-    m_explode = std::make_unique<SoundEffect>( m_audEngine.get(), L"explo1.wav" );
-    m_ambient = std::make_unique<SoundEffect>( m_audEngine.get(), L"NightAmbienceSimple_02.wav" );
-    m_sounds = std::make_unique<WaveBank>( m_audEngine.get(), L"sounds.xwb" );
+    m_explode = std::make_unique<SoundEffect>(m_audEngine.get(), L"explo1.wav");
+    m_ambient = std::make_unique<SoundEffect>(m_audEngine.get(), L"NightAmbienceSimple_02.wav");
+    m_sounds = std::make_unique<WaveBank>(m_audEngine.get(), L"sounds.xwb");
 
     std::random_device rd;
     m_random = std::make_unique<std::mt19937>(rd());
     explodeDelay = 2.f;
 
     //m_nightLoop = m_ambient->CreateInstance();
-    m_nightLoop = m_sounds->CreateInstance( "NightAmbienceSimple_02" );
-    if ( m_nightLoop )
+    m_nightLoop = m_sounds->CreateInstance("NightAmbienceSimple_02");
+    if (m_nightLoop)
         m_nightLoop->Play(true);
 
     nightVolume = 1.f;
     nightSlide = -0.1f;
+
+#if 0
+    m_music = std::make_unique<WaveBank>(m_audEngine.get(), L"music.xwb");
+
+    m_stream = m_music->CreateStreamInstance(0u);
+    if (m_stream)
+    {
+        m_stream->SetVolume(0.5f);
+        m_stream->Play(true);
+    }
+#endif
 }
 
 // Executes basic game loop.
@@ -130,8 +144,12 @@ void Game::Update(DX::StepTimer const& timer)
         if (m_audEngine->Reset())
         {
             // TODO: restart any looped sounds here
-            if ( m_nightLoop )
+            if (m_nightLoop)
                 m_nightLoop->Play(true);
+#if 0
+            if (m_stream)
+                m_stream->Play(true);
+#endif
         }
     }
     else if (!m_audEngine->Update())

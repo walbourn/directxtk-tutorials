@@ -54,6 +54,9 @@
   <ItemGroup>
     <None Include="sounds.xwb" />
     <None Include="packages.config" />
+    <None Include="music.xwb">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Media Include="Explo1.wav">
