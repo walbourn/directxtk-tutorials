@@ -192,8 +192,6 @@ void Game::CreateDeviceDependentResources()
     RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
 
     m_resourceDescriptors = std::make_unique<DescriptorHeap>(device,
-        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-        D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
         Descriptors::Count);
 
     ResourceUploadBatch resourceUpload(device);
