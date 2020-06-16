@@ -60,6 +60,7 @@
 #include <dxgidebug.h>
 #endif
 
+#include "BufferHelpers.h"
 #include "CommonStates.h"
 #include "DDSTextureLoader.h"
 #include "DescriptorHeap.h"

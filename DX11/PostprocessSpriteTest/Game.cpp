@@ -5,6 +5,8 @@
 #include "pch.h"
 #include "Game.h"
 
+#include "ReadData.h"
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
