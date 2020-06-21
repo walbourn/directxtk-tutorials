@@ -1,28 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GamePadTest", "GamePadTest.vcxproj", "{7A304B14-E1F1-4882-8972-E90D38793BA1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GamePadTest", "GamePadTest.vcxproj", "{0C2808C5-01FC-4095-B526-C10AC92AE2F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
-		Release|Win32 = Release|Win32
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Debug|Win32.Build.0 = Debug|Win32
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Debug|x64.ActiveCfg = Debug|x64
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Debug|x64.Build.0 = Debug|x64
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Release|Win32.ActiveCfg = Release|Win32
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Release|Win32.Build.0 = Release|Win32
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Release|x64.ActiveCfg = Release|x64
-		{7A304B14-E1F1-4882-8972-E90D38793BA1}.Release|x64.Build.0 = Release|x64
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Debug|x64.ActiveCfg = Debug|x64
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Debug|x64.Build.0 = Debug|x64
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Debug|x86.ActiveCfg = Debug|Win32
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Debug|x86.Build.0 = Debug|Win32
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Release|x64.ActiveCfg = Release|x64
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Release|x64.Build.0 = Release|x64
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Release|x86.ActiveCfg = Release|Win32
+		{0C2808C5-01FC-4095-B526-C10AC92AE2F0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C2063CBE-8209-4808-AE6C-753A4D868C7A}
 	EndGlobalSection
 EndGlobal
