@@ -67,7 +67,17 @@ void Game::Render()
     Clear();
 
     // TODO: Add your rendering code here
+#if 1
     m_model->Draw(m_d3dContext.Get(), *m_states, m_world, m_view, m_proj);
+#elif 0
+    m_model->Draw(m_d3dContext.Get(), *m_states, m_world, m_view, m_proj, true);
+#else
+    m_model->Draw(m_d3dContext.Get(), *m_states, m_world, m_view, m_proj, false, [&]() -> void
+    {
+        auto sampler = m_states->PointClamp();
+        m_d3dContext->PSSetSamplers(0, 1, &sampler);
+    });
+#endif
 
     Present();
 }
@@ -221,11 +231,15 @@ void Game::CreateDevice()
     // TODO: Initialize device dependent objects here (independent of window size)
     m_states = std::make_unique<CommonStates>(m_d3dDevice.Get());
 
+#if 1
     m_fxFactory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
-    //m_fxFactory = std::make_unique<DGSLEffectFactory>(m_d3dDevice.Get());
+#else
+    m_fxFactory = std::make_unique<DGSLEffectFactory>(m_d3dDevice.Get());
+#endif
 
     m_model = Model::CreateFromCMO(m_d3dDevice.Get(), L"cup.cmo", *m_fxFactory);
 
+#if 0
     m_model->UpdateEffects([](IEffect* effect)
     {
         auto lights = dynamic_cast<IEffectLights*>(effect);
@@ -248,6 +262,7 @@ void Game::CreateDevice()
             fog->SetFogEnd(4.f);
         }
     });
+#endif
 
     m_world = Matrix::Identity;
 }

@@ -94,9 +94,11 @@ void Game::Render()
     Model::UpdateEffectMatrices(m_modelNormal, m_world, m_view, m_proj);
 
     m_model->Draw(commandList, m_modelNormal.cbegin());
-#endif
+#elif 1
+    Model::UpdateEffectMatrices(m_modelWireframe, m_world, m_view, m_proj);
 
-#if 1
+    m_model->Draw(commandList, m_modelWireframe.cbegin());
+#else
     Model::UpdateEffectMatrices(m_modelFog, m_world, m_view, m_proj);
 
     m_model->Draw(commandList, m_modelFog.cbegin());
@@ -228,6 +230,23 @@ void Game::CreateDeviceDependentResources()
 
     m_modelNormal = m_model->CreateEffects(*m_fxFactory, pd, pdAlpha);
 
+    EffectPipelineStateDescription pdWireframe(
+        nullptr,
+        CommonStates::Opaque,
+        CommonStates::DepthDefault,
+        CommonStates::Wireframe,
+        rtState);
+
+    EffectPipelineStateDescription pdWireframeAlpha(
+        nullptr,
+        CommonStates::AlphaBlend,
+        CommonStates::DepthDefault,
+        CommonStates::Wireframe,
+        rtState);
+
+    m_modelWireframe = m_model->CreateEffects(*m_fxFactory, pdWireframe, pdWireframeAlpha);
+
+#if 0
     m_fxFactory->EnableFogging(true);
     m_fxFactory->EnablePerPixelLighting(true);
     m_modelFog = m_model->CreateEffects(*m_fxFactory, pd, pdAlpha);
@@ -251,6 +270,7 @@ void Game::CreateDeviceDependentResources()
             fog->SetFogEnd(4.f);
         }
     }
+#endif
 
     m_world = Matrix::Identity;
 }
@@ -274,6 +294,7 @@ void Game::OnDeviceLost()
     m_modelResources.reset();
     m_model.reset();
     m_modelNormal.clear();
+    m_modelWireframe.clear();
     m_modelFog.clear();
     m_states.reset();
     m_graphicsMemory.reset();
