@@ -53,10 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="sounds.xwb" />
-    <None Include="packages.config" />
     <None Include="music.xwb">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Explo1.wav">

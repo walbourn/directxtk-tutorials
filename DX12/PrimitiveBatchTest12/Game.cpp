@@ -399,7 +399,7 @@ void Game::CreateDeviceDependentResources()
     m_effect = std::make_unique<BasicEffect>(device, EffectFlags::Texture, pd);
     m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Rocks), m_states->LinearClamp());
 #else
-    m_effect = std::make_unique<NormalMapEffect>(device, EffectFlags::None, pd, false);
+    m_effect = std::make_unique<NormalMapEffect>(device, EffectFlags::None, pd);
     m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Rocks), m_states->LinearClamp());
     m_effect->SetNormalTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::NormalMap));
     m_effect->EnableDefaultLighting();

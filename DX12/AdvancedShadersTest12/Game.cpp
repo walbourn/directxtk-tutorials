@@ -223,7 +223,7 @@ void Game::CreateDeviceDependentResources()
         rtState);
 
     m_effect = std::make_unique<EnvironmentMapEffect>(device,
-        EffectFlags::Lighting, pd);
+        EffectFlags::Lighting | EffectFlags::Fresnel, pd);
     m_effect->EnableDefaultLighting();
 
     m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Wood),
