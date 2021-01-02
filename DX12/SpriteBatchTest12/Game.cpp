@@ -78,7 +78,7 @@ void Game::Render()
 
     // TODO: Add your rendering code here.
     ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap(), m_states->Heap() };
-    m_commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+    m_commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
 #if 0
     m_spriteBatch->Begin(m_commandList.Get());
@@ -310,7 +310,7 @@ void Game::CreateDevice()
             D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE
         };
         D3D12_INFO_QUEUE_FILTER filter = {};
-        filter.DenyList.NumIDs = _countof(hide);
+        filter.DenyList.NumIDs = static_cast<UINT>(std::size(hide));
         filter.DenyList.pIDList = hide;
         d3dInfoQueue->AddStorageFilterEntries(&filter);
     }

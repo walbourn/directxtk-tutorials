@@ -136,7 +136,7 @@ void Game::Render()
     commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, nullptr);
 
     ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap() };
-    commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+    commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
 #if 0
     m_toneMap->Process(commandList);

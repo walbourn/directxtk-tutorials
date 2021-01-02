@@ -43,11 +43,11 @@
 #include <DirectXColors.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <exception>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
-
-#include <stdio.h>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>

@@ -88,7 +88,7 @@ void Game::Render()
 
     // TODO: Add your rendering code here.
     ID3D12DescriptorHeap* heaps[] = { m_modelResources->Heap(), m_states->Heap() };
-    commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+    commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
 #if 0
     Model::UpdateEffectMatrices(m_modelNormal, m_world, m_view, m_proj);

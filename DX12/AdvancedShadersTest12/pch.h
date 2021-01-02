@@ -46,11 +46,11 @@
 #include "d3dx12.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <exception>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
-
-#include <stdio.h>
 
 // To use graphics and CPU markup events with the latest version of PIX, change this to include <pix3.h>
 // then add the NuGet package WinPixEventRuntime to the project.

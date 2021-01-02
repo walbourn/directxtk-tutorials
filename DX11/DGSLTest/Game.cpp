@@ -95,7 +95,7 @@ void Game::Render()
 
     m_d3dContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-    m_d3dContext->DrawIndexed( _countof(g_sphereIB), 0, 0 );
+    m_d3dContext->DrawIndexed(static_cast<UINT>(std::size(g_sphereIB)), 0, 0);
 
     Present();
 }
