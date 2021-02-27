@@ -6,7 +6,7 @@
 // For Windows desktop apps, it looks for files in the same folder as the running EXE if
 // it can't find them in the CWD
 //
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //-------------------------------------------------------------------------------------
 
