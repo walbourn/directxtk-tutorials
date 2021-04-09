@@ -41,7 +41,7 @@ public:
     void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
 
-    void OnNewAudioDevice() { m_retryAudio = true; }
+    void OnNewAudioDevice() noexcept { m_retryAudio = true; }
 
     // Properties
     void GetDefaultSize( int& width, int& height ) const noexcept;
@@ -64,4 +64,15 @@ private:
 
     std::unique_ptr<DirectX::AudioEngine>   m_audEngine;
     bool m_retryAudio;
+
+    std::unique_ptr<DirectX::SoundEffect>   m_soundEffect;
+    std::unique_ptr<DirectX::SoundEffectInstance> m_soundSource;
+
+    std::unique_ptr<DirectX::GeometricPrimitive> m_ball;
+    DirectX::SimpleMath::Matrix m_proj;
+    DirectX::SimpleMath::Matrix m_view;
+    DirectX::SimpleMath::Vector3 m_position;
+
+    DirectX::AudioListener m_listener;
+    DirectX::AudioEmitter  m_emitter;
 };

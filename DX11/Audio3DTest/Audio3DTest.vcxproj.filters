@@ -43,4 +43,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="heli.wav">
+      <Filter>Assets</Filter>
+    </Media>
+  </ItemGroup>
 </Project>
