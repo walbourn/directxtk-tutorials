@@ -12,6 +12,8 @@ using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
+#define USE_REVERB
+
 namespace
 {
     constexpr X3DAUDIO_CONE c_listenerCone = {
@@ -69,43 +71,81 @@ void Game::Initialize(HWND window, int width, int height)
     eflags |= AudioEngine_Debug;
 #endif
 
-#if 1
+#ifdef USE_REVERB
     eflags |= AudioEngine_EnvironmentalReverb | AudioEngine_ReverbUseFilters | AudioEngine_UseMasteringLimiter;
 #endif
 
     m_audEngine = std::make_unique<AudioEngine>(eflags);
 
+#ifdef USE_REVERB
     m_audEngine->SetReverb(Reverb_Hangar);
+#endif
 
     m_retryAudio = false;
 
     if (!m_audEngine->IsAudioDevicePresent())
     {
+        OutputDebugStringA("No default audio device found, running in 'silent mode'\n");
+    }
+    else
+    {
+        auto wfx = m_audEngine->GetOutputFormat();
+
+        const char* speakerConfig;
+        switch (wfx.dwChannelMask)
+        {
+        case SPEAKER_MONO:              speakerConfig = "Mono"; break;
+        case SPEAKER_STEREO:            speakerConfig = "Stereo"; break;
+        case SPEAKER_2POINT1:           speakerConfig = "2.1"; break;
+        case SPEAKER_SURROUND:          speakerConfig = "Surround"; break;
+        case SPEAKER_QUAD:              speakerConfig = "Quad"; break;
+        case SPEAKER_4POINT1:           speakerConfig = "4.1"; break;
+        case SPEAKER_5POINT1:           speakerConfig = "5.1"; break;
+        case SPEAKER_7POINT1:           speakerConfig = "7.1"; break;
+        case SPEAKER_5POINT1_SURROUND:  speakerConfig = "Surround5.1"; break;
+        case SPEAKER_7POINT1_SURROUND:  speakerConfig = "Surround7.1"; break;
+        default:                        speakerConfig = "(unknown)"; break;
+        }
+
+        char buff[128] = {};
+        sprintf_s(buff, "Speaker config: %s\n", speakerConfig);
+        OutputDebugStringA(buff);
     }
 
-    m_soundEffect = std::make_unique<SoundEffect>(m_audEngine.get(), L"heli.wav");
-
-#if 0
-    m_soundSource = m_soundEffect->CreateInstance(SoundEffectInstance_Use3D);
-#endif
-
-#if 0
-    m_soundSource = m_soundEffect->CreateInstance(SoundEffectInstance_Use3D);
-#endif
-
 #if 1
+    m_soundEffect = std::make_unique<SoundEffect>(m_audEngine.get(), L"heli.wav");
+#else
+    // Copy tada.wav from windows\media for this test...
+    m_soundEffect = std::make_unique<SoundEffect>(m_audEngine.get(), L"tada.wav");
+#endif
+
+#if 0
+    m_soundSource = m_soundEffect->CreateInstance(SoundEffectInstance_Use3D);
+#endif
+
+#if 0
+    m_soundSource = m_soundEffect->CreateInstance(SoundEffectInstance_Use3D);
+#endif
+
+#ifdef USE_REVERB
     m_soundSource = m_soundEffect->CreateInstance(SoundEffectInstance_Use3D | SoundEffectInstance_ReverbUseFilters);
+#else
+    m_soundSource = m_soundEffect->CreateInstance(SoundEffectInstance_Use3D);
 #endif
 
     m_soundSource->Play(true);
 
-#if 1
+#ifdef USE_REVERB
     m_listener.pCone = const_cast<X3DAUDIO_CONE*>(&c_listenerCone);
 
     m_emitter.pLFECurve = const_cast<X3DAUDIO_DISTANCE_CURVE*>(&c_emitter_LFE_Curve);
     m_emitter.pReverbCurve = const_cast<X3DAUDIO_DISTANCE_CURVE*>(&c_emitter_Reverb_Curve);
     m_emitter.CurveDistanceScaler = 14.f;
     m_emitter.pCone = const_cast<X3DAUDIO_CONE*>(&c_emitterCone);
+#endif
+
+#if 1
+     m_emitter.ChannelCount = m_soundEffect->GetFormat()->nChannels;
 #endif
 }
 
@@ -173,7 +213,7 @@ void Game::Render()
     Clear();
 
     m_deviceResources->PIXBeginEvent(L"Render");
-    auto context = m_deviceResources->GetD3DDeviceContext();
+    //auto context = m_deviceResources->GetD3DDeviceContext();
 
     // TODO: Add your rendering code here.
     XMMATRIX world = XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
