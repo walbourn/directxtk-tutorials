@@ -70,8 +70,13 @@ private:
     DirectX::SimpleMath::Matrix m_proj;
     std::unique_ptr<DirectX::CommonStates> m_states;
     std::unique_ptr<DirectX::GeometricPrimitive> m_shape;
+#if 0
     std::unique_ptr<DirectX::EnvironmentMapEffect> m_effect;
+#else
+    std::unique_ptr<DirectX::NormalMapEffect> m_effect;
+#endif
     Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemap;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalTexture;
 };

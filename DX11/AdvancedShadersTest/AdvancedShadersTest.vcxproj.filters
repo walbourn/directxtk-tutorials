@@ -51,6 +51,9 @@
     <Image Include="wood.DDS">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="normalMap.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">

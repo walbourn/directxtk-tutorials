@@ -172,6 +172,7 @@
   <ItemGroup>
     <Image Include="cubemap.dds" />
     <Image Include="directx.ico" />
+    <Image Include="normalMap.dds" />
     <Image Include="wood.DDS" />
   </ItemGroup>
   <ItemGroup>

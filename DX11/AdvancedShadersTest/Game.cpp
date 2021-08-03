@@ -52,7 +52,7 @@ void Game::Update(DX::StepTimer const& timer)
 
     m_world = Matrix::CreateRotationZ(cosf(time) * 2.f);
 
-#if 1
+#if 0
     m_effect->SetFresnelFactor(cosf(time * 2.f));
 #endif
 }
@@ -219,7 +219,11 @@ void Game::CreateDevice()
     // TODO: Initialize device dependent objects here (independent of window size)
     m_states = std::make_unique<CommonStates>(m_d3dDevice.Get());
 
+#if 0
     m_effect = std::make_unique<EnvironmentMapEffect>(m_d3dDevice.Get());
+#else
+    m_effect = std::make_unique<NormalMapEffect>(m_d3dDevice.Get());
+#endif
     m_effect->EnableDefaultLighting();
 
     m_shape = GeometricPrimitive::CreateTeapot(m_d3dContext.Get());
@@ -236,7 +240,15 @@ void Game::CreateDevice()
         CreateDDSTextureFromFile(m_d3dDevice.Get(), L"cubemap.dds", nullptr,
         m_cubemap.ReleaseAndGetAddressOf()));
 
+    DX::ThrowIfFailed(
+        CreateDDSTextureFromFile(m_d3dDevice.Get(), L"normalMap.dds", nullptr,
+            m_normalTexture.ReleaseAndGetAddressOf()));
+
+#if 0
     m_effect->SetEnvironmentMap(m_cubemap.Get());
+#else
+    m_effect->SetNormalTexture(m_normalTexture.Get());
+#endif
 
     m_world = Matrix::Identity;
 }
@@ -382,6 +394,7 @@ void Game::OnDeviceLost()
     m_inputLayout.Reset();
     m_texture.Reset();
     m_cubemap.Reset();
+    m_normalTexture.Reset();
 
     m_depthStencil.Reset();
     m_depthStencilView.Reset();
