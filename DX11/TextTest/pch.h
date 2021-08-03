@@ -20,10 +20,17 @@
 #include <DirectXColors.h>
 
 #include <algorithm>
-#include <exception>
-#include <memory>
-#include <locale>
+#include <cmath>
 #include <codecvt>
+#include <cstdint>
+#include <cstdio>
+#include <cwchar>
+#include <exception>
+#include <iterator>
+#include <locale>
+#include <memory>
+#include <stdexcept>
+#include <locale>
 
 #include "BufferHelpers.h"
 #include "CommonStates.h"

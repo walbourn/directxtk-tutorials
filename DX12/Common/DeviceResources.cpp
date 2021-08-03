@@ -138,11 +138,12 @@ void DeviceResources::CreateDeviceResources()
     GetAdapter(adapter.GetAddressOf());
 
     // Create the DX12 API device object.
-    ThrowIfFailed(D3D12CreateDevice(
+    HRESULT hr = D3D12CreateDevice(
         adapter.Get(),
         m_d3dMinFeatureLevel,
         IID_PPV_ARGS(m_d3dDevice.ReleaseAndGetAddressOf())
-        ));
+        );
+    ThrowIfFailed(hr);
 
     m_d3dDevice->SetName(L"DeviceResources");
 
@@ -171,6 +172,9 @@ void DeviceResources::CreateDeviceResources()
     // Determine maximum supported feature level for this device
     static const D3D_FEATURE_LEVEL s_featureLevels[] =
     {
+#if defined(NTDDI_WIN10_FE) || defined(USING_D3D12_AGILITY_SDK)
+        D3D_FEATURE_LEVEL_12_2,
+#endif
         D3D_FEATURE_LEVEL_12_1,
         D3D_FEATURE_LEVEL_12_0,
         D3D_FEATURE_LEVEL_11_1,
@@ -182,7 +186,7 @@ void DeviceResources::CreateDeviceResources()
         static_cast<UINT>(std::size(s_featureLevels)), s_featureLevels, D3D_FEATURE_LEVEL_11_0
     };
 
-    HRESULT hr = m_d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
+    hr = m_d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
     if (SUCCEEDED(hr))
     {
         m_d3dFeatureLevel = featLevels.MaxSupportedFeatureLevel;
@@ -248,7 +252,7 @@ void DeviceResources::CreateDeviceResources()
     m_fenceEvent.Attach(CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE));
     if (!m_fenceEvent.IsValid())
     {
-        throw std::exception("CreateEvent");
+        throw std::system_error(std::error_code(static_cast<int>(GetLastError()), std::system_category()), "CreateEventEx");
     }
 }
 
@@ -257,7 +261,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
 {
     if (!m_window)
     {
-        throw std::exception("Call SetWindow with a valid Win32 window handle");
+        throw std::logic_error("Call SetWindow with a valid Win32 window handle");
     }
 
     // Wait until all previous GPU work is complete.
@@ -685,7 +689,7 @@ void DeviceResources::GetAdapter(IDXGIAdapter1** ppAdapter)
         // Try WARP12 instead
         if (FAILED(m_dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf()))))
         {
-            throw std::exception("WARP12 not available. Enable the 'Graphics Tools' optional feature");
+            throw std::runtime_error("WARP12 not available. Enable the 'Graphics Tools' optional feature");
         }
 
         OutputDebugStringA("Direct3D Adapter - WARP12\n");
@@ -694,7 +698,7 @@ void DeviceResources::GetAdapter(IDXGIAdapter1** ppAdapter)
 
     if (!adapter)
     {
-        throw std::exception("No Direct3D 12 device found");
+        throw std::runtime_error("No Direct3D 12 device found");
     }
 
     *ppAdapter = adapter.Detach();
@@ -707,7 +711,6 @@ void DeviceResources::UpdateColorSpace()
 
     bool isDisplayHDR10 = false;
 
-#if defined(NTDDI_WIN10_RS2)
     if (m_swapChain)
     {
         ComPtr<IDXGIOutput> output;
@@ -727,7 +730,6 @@ void DeviceResources::UpdateColorSpace()
             }
         }
     }
-#endif
 
     if ((m_options & c_EnableHDR) && isDisplayHDR10)
     {

@@ -190,7 +190,7 @@ void DeviceResources::CreateDeviceResources()
 #if defined(NDEBUG)
     else
     {
-        throw std::exception("No Direct3D hardware device found");
+        throw std::runtime_error("No Direct3D hardware device found");
     }
 #else
     if (FAILED(hr))
@@ -253,7 +253,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
 {
     if (!m_window)
     {
-        throw std::exception("Call SetWindow with a valid Win32 window handle");
+        throw std::logic_error("Call SetWindow with a valid Win32 window handle");
     }
 
     // Clear the previous window size specific context.
@@ -609,7 +609,6 @@ void DeviceResources::UpdateColorSpace()
 
     bool isDisplayHDR10 = false;
 
-#if defined(NTDDI_WIN10_RS2)
     if (m_swapChain)
     {
         ComPtr<IDXGIOutput> output;
@@ -629,7 +628,6 @@ void DeviceResources::UpdateColorSpace()
             }
         }
     }
-#endif
 
     if ((m_options & c_EnableHDR) && isDisplayHDR10)
     {

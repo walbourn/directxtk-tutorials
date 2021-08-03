@@ -20,9 +20,14 @@
 #include <DirectXColors.h>
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <cwchar>
 #include <exception>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 
 #include "BufferHelpers.h"
 #include "CommonStates.h"
