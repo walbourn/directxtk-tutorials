@@ -60,15 +60,23 @@ private:
     DirectX::SimpleMath::Matrix m_proj;
     std::unique_ptr<DirectX::CommonStates> m_states;
     std::unique_ptr<DirectX::GeometricPrimitive> m_shape;
-    std::unique_ptr<DirectX::EnvironmentMapEffect> m_effect;
     std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_texture;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_cubemap;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_normalTexture;
 
+#if 0
+    std::unique_ptr<DirectX::EnvironmentMapEffect> m_effect;
+#elif 0
+    std::unique_ptr<DirectX::NormalMapEffect> m_effect;
+#else
+    std::unique_ptr<DirectX::DebugEffect> m_effect;
+#endif
     enum Descriptors : size_t
     {
         Wood,
         EnvMap,
+        NormalMap,
         Count
     };
 };

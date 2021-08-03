@@ -64,7 +64,7 @@ void Game::Update(DX::StepTimer const& timer)
 
     m_world = Matrix::CreateRotationZ(cosf(time) * 2.f);
 
-#if 1
+#if 0
     m_effect->SetFresnelFactor(cosf(time * 2.f));
 #endif
 
@@ -205,6 +205,13 @@ void Game::CreateDeviceDependentResources()
     CreateShaderResourceView(device, m_texture.Get(),
         m_resourceDescriptors->GetCpuHandle(Descriptors::Wood));
 
+    DX::ThrowIfFailed(
+        CreateDDSTextureFromFile(device, resourceUpload, L"normalMap.dds",
+            m_normalTexture.ReleaseAndGetAddressOf(), false));
+
+    CreateShaderResourceView(device, m_normalTexture.Get(),
+        m_resourceDescriptors->GetCpuHandle(Descriptors::NormalMap));
+
     bool isCubeMap = false;
     DX::ThrowIfFailed(
         CreateDDSTextureFromFile(device, resourceUpload, L"cubemap.dds",
@@ -222,14 +229,32 @@ void Game::CreateDeviceDependentResources()
         CommonStates::CullNone,
         rtState);
 
+#if 0
     m_effect = std::make_unique<EnvironmentMapEffect>(device,
         EffectFlags::Lighting | EffectFlags::Fresnel, pd);
-    m_effect->EnableDefaultLighting();
+#elif 0
+    m_effect = std::make_unique<NormalMapEffect>(device, EffectFlags::None, pd);
+#else
+    m_effect = std::make_unique<DebugEffect>(device, EffectFlags::None, pd);
+#endif
 
+#if 0
+    m_effect->EnableDefaultLighting();
+#else
+    m_effect->SetHemisphericalAmbientColor(Colors::DarkBlue, Colors::Purple);
+#endif
+
+#if 0
     m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Wood),
         m_states->LinearWrap());
+#endif
+
+#if 0
     m_effect->SetEnvironmentMap(m_resourceDescriptors->GetGpuHandle(Descriptors::EnvMap),
         m_states->LinearWrap());
+#elif 0
+    m_effect->SetNormalTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::NormalMap));
+#endif
 
     m_shape = GeometricPrimitive::CreateTeapot();
 
