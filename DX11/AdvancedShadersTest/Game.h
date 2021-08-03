@@ -72,8 +72,10 @@ private:
     std::unique_ptr<DirectX::GeometricPrimitive> m_shape;
 #if 0
     std::unique_ptr<DirectX::EnvironmentMapEffect> m_effect;
-#else
+#elif 0
     std::unique_ptr<DirectX::NormalMapEffect> m_effect;
+#else
+    std::unique_ptr<DirectX::DebugEffect> m_effect;
 #endif
     Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;

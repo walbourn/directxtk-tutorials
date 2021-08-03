@@ -221,10 +221,17 @@ void Game::CreateDevice()
 
 #if 0
     m_effect = std::make_unique<EnvironmentMapEffect>(m_d3dDevice.Get());
-#else
+#elif 0
     m_effect = std::make_unique<NormalMapEffect>(m_d3dDevice.Get());
+#else
+    m_effect = std::make_unique<DebugEffect>(m_d3dDevice.Get());
 #endif
+
+#if 0
     m_effect->EnableDefaultLighting();
+#else
+    m_effect->SetHemisphericalAmbientColor(Colors::DarkBlue, Colors::Purple);
+#endif
 
     m_shape = GeometricPrimitive::CreateTeapot(m_d3dContext.Get());
     m_shape->CreateInputLayout(m_effect.get(),
@@ -234,7 +241,9 @@ void Game::CreateDevice()
         CreateDDSTextureFromFile(m_d3dDevice.Get(), L"wood.dds", nullptr,
         m_texture.ReleaseAndGetAddressOf()));
 
+#if 0
     m_effect->SetTexture(m_texture.Get());
+#endif
 
     DX::ThrowIfFailed(
         CreateDDSTextureFromFile(m_d3dDevice.Get(), L"cubemap.dds", nullptr,
@@ -246,7 +255,7 @@ void Game::CreateDevice()
 
 #if 0
     m_effect->SetEnvironmentMap(m_cubemap.Get());
-#else
+#elif 0
     m_effect->SetNormalTexture(m_normalTexture.Get());
 #endif
 
