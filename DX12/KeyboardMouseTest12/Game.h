@@ -8,14 +8,14 @@
 #include "StepTimer.h"
 
 
-// A basic game implementation that creates a D3D11 device and
+// A basic game implementation that creates a D3D12 device and
 // provides a game loop.
 class Game final : public DX::IDeviceNotify
 {
 public:
 
     Game() noexcept(false);
-    ~Game() = default;
+    ~Game();
 
     Game(Game&&) = default;
     Game& operator= (Game&&) = default;
@@ -55,26 +55,27 @@ private:
     void CreateWindowSizeDependentResources();
 
     // Device resources.
-    std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+    std::unique_ptr<DX::DeviceResources>        m_deviceResources;
+    std::unique_ptr<DirectX::GraphicsMemory>    m_graphicsMemory;
 
-    // Rendering loop timer.
-    DX::StepTimer                           m_timer;
-
-    std::unique_ptr<DirectX::Keyboard>              m_keyboard;
-    std::unique_ptr<DirectX::Mouse>                 m_mouse;
+    std::unique_ptr<DirectX::Keyboard>          m_keyboard;
+    std::unique_ptr<DirectX::Mouse>             m_mouse;
 
     std::unique_ptr<DirectX::GeometricPrimitive>    m_room;
-
     DirectX::SimpleMath::Matrix                     m_proj;
     DirectX::SimpleMath::Vector3                    m_cameraPos;
-
     float                                           m_pitch;
     float                                           m_yaw;
-
     DirectX::SimpleMath::Color                      m_roomColor;
 
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
+    Microsoft::WRL::ComPtr<ID3D12Resource>          m_roomTex;
+    std::unique_ptr<DirectX::DescriptorHeap>        m_resourceDescriptors;
+    std::unique_ptr<DirectX::CommonStates>          m_states;
+    std::unique_ptr<DirectX::BasicEffect>           m_roomEffect;
 
     DirectX::Keyboard::KeyboardStateTracker         m_keys;
     DirectX::Mouse::ButtonStateTracker              m_mouseButtons;
+
+    // Rendering loop timer.
+    DX::StepTimer                           m_timer;
 };
