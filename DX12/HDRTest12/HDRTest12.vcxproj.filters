@@ -21,7 +21,7 @@
     <ClInclude Include="..\Common\StepTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTexture.h">
+    <ClInclude Include="..\Common\RenderTexture.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClCompile Include="..\Common\DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTexture.cpp">
+    <ClCompile Include="..\Common\RenderTexture.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>

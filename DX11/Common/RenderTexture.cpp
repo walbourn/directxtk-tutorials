@@ -13,17 +13,15 @@
 #include "DirectXHelpers.h"
 
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 #include <stdexcept>
-
-#include <wrl/client.h>
 
 using namespace DirectX;
 using namespace DX;
 
 using Microsoft::WRL::ComPtr;
 
-RenderTexture::RenderTexture(DXGI_FORMAT format) :
+RenderTexture::RenderTexture(DXGI_FORMAT format) noexcept :
     m_format(format),
     m_width(0),
     m_height(0)
@@ -44,7 +42,7 @@ void RenderTexture::SetDevice(_In_ ID3D11Device* device)
         UINT formatSupport = 0;
         if (FAILED(device->CheckFormatSupport(m_format, &formatSupport)))
         {
-            throw std::exception("CheckFormatSupport");
+            throw std::runtime_error("CheckFormatSupport");
         }
 
         UINT32 required = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_RENDER_TARGET;
@@ -55,7 +53,7 @@ void RenderTexture::SetDevice(_In_ ID3D11Device* device)
             sprintf_s(buff, "RenderTexture: Device does not support the requested format (%u)!\n", m_format);
             OutputDebugStringA(buff);
 #endif
-            throw std::exception("RenderTexture");
+            throw std::runtime_error("RenderTexture");
         }
     }
 
@@ -126,7 +124,7 @@ void RenderTexture::SizeResources(size_t width, size_t height)
 }
 
 
-void RenderTexture::ReleaseDevice()
+void RenderTexture::ReleaseDevice() noexcept
 {
     m_renderTargetView.Reset();
     m_shaderResourceView.Reset();
@@ -141,7 +139,7 @@ void RenderTexture::SetWindow(const RECT& output)
 {
     // Determine the render target size in pixels.
     auto width = size_t(std::max<LONG>(output.right - output.left, 1));
-    auto height = size_t(std::max<LONG>(output.bottom - output.top, 1));  
+    auto height = size_t(std::max<LONG>(output.bottom - output.top, 1));
 
     SizeResources(width, height);
 }
