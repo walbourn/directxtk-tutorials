@@ -1,28 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 16.0.31507.150
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeometricPrimitiveTest", "GeometricPrimitiveTest.vcxproj", "{094C5222-5EEE-4D88-85A5-523B53D31714}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeometricPrimitiveTest", "GeometricPrimitiveTest.vcxproj", "{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
-		Release|Win32 = Release|Win32
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Debug|Win32.ActiveCfg = Debug|Win32
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Debug|Win32.Build.0 = Debug|Win32
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Debug|x64.ActiveCfg = Debug|x64
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Debug|x64.Build.0 = Debug|x64
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Release|Win32.ActiveCfg = Release|Win32
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Release|Win32.Build.0 = Release|Win32
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Release|x64.ActiveCfg = Release|x64
-		{094C5222-5EEE-4D88-85A5-523B53D31714}.Release|x64.Build.0 = Release|x64
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Debug|x64.ActiveCfg = Debug|x64
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Debug|x64.Build.0 = Debug|x64
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Debug|x86.ActiveCfg = Debug|Win32
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Debug|x86.Build.0 = Debug|Win32
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Release|x64.ActiveCfg = Release|x64
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Release|x64.Build.0 = Release|x64
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Release|x86.ActiveCfg = Release|Win32
+		{6AE3AB7C-AD59-4B99-B1B3-9C2F5279331A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {95111B38-1CF6-43A6-B929-D1E68C8EFA37}
 	EndGlobalSection
 EndGlobal

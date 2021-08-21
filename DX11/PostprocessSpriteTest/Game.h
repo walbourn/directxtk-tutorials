@@ -4,82 +4,77 @@
 
 #pragma once
 
-#include "pch.h"
-#include <stdexcept>
+#include "DeviceResources.h"
 #include "StepTimer.h"
 
+
 // A basic game implementation that creates a D3D11 device and
-// provides a game loop
-class Game
+// provides a game loop.
+class Game final : public DX::IDeviceNotify
 {
 public:
 
-    Game();
+    Game() noexcept(false);
+    ~Game() = default;
+
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
 
     // Initialization and management
-    void Initialize(HWND window);
+    void Initialize(HWND window, int width, int height);
 
     // Basic game loop
     void Tick();
-    void Render();
 
-    // Rendering helpers
-    void Clear();
-    void Present();
+    // IDeviceNotify
+    void OnDeviceLost() override;
+    void OnDeviceRestored() override;
 
     // Messages
     void OnActivated();
     void OnDeactivated();
     void OnSuspending();
     void OnResuming();
-    void OnWindowSizeChanged();
-
+    void OnWindowMoved();
+    void OnWindowSizeChanged(int width, int height);
     void OnKeyPress(int vk);
 
-    // Properites
-    void GetDefaultSize( size_t& width, size_t& height ) const;
+    // Properties
+    void GetDefaultSize(int& width, int& height) const noexcept;
 
 private:
 
     void Update(DX::StepTimer const& timer);
+    void Render();
+
+    void Clear();
+
+    void CreateDeviceDependentResources();
+    void CreateWindowSizeDependentResources();
+
     void PostProcess();
 
-    void CreateDevice();
-    void CreateResources();
-    
-    void OnDeviceLost();
+    // Device resources.
+    std::unique_ptr<DX::DeviceResources>    m_deviceResources;
 
+    // Rendering loop timer.
+    DX::StepTimer                           m_timer;
 
-    // Application state
-    HWND                                            m_window;
-
-    // Direct3D Objects
-    D3D_FEATURE_LEVEL                               m_featureLevel;
-    Microsoft::WRL::ComPtr<ID3D11Device>            m_d3dDevice;
-    Microsoft::WRL::ComPtr<ID3D11Device1>           m_d3dDevice1;
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext>     m_d3dContext;
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext1>    m_d3dContext1;
-
-    // Rendering resources
-    Microsoft::WRL::ComPtr<IDXGISwapChain>          m_swapChain;
-    Microsoft::WRL::ComPtr<IDXGISwapChain1>         m_swapChain1;
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView>  m_renderTargetView;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_depthStencilView;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_depthStencil;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_backBuffer;
-
-    // Game state
-    DX::StepTimer                                   m_timer;
-
-    // Tutorial
     std::unique_ptr<DirectX::CommonStates>           m_states;
     std::unique_ptr<DirectX::SpriteBatch>            m_spriteBatch;
     std::unique_ptr<DirectX::GeometricPrimitive>     m_shape;
+
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_background;
-    DirectX::SimpleMath::Matrix m_world;
-    DirectX::SimpleMath::Matrix m_view;
-    DirectX::SimpleMath::Matrix m_projection;
+
+    DirectX::SimpleMath::Matrix                      m_world;
+    DirectX::SimpleMath::Matrix                      m_view;
+    DirectX::SimpleMath::Matrix                      m_projection;
+
     RECT                                             m_fullscreenRect;
+    RECT                                             m_bloomRect;
 
 #if 1
     Microsoft::WRL::ComPtr<ID3D11PixelShader>        m_bloomExtractPS;
@@ -101,11 +96,9 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_rt2SRV;
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_rt2RT;
-
-    RECT                                             m_bloomRect;
 #endif
 
-// SCREENSHOTS only
-Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture1;
-Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture2;
+    // SCREENSHOTS only
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture1;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture2;
 };

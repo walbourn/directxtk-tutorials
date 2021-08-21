@@ -5,9 +5,11 @@
 
 #pragma once
 
-#include <WinSDKVer.h>
+#include <winsdkver.h>
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0601
-#include <SDKDDKVer.h>
+#endif
+#include <sdkddkver.h>
 
 // Use the C++ standard templated min/max
 #define NOMINMAX
@@ -27,17 +29,12 @@
 #define NOHELP
 
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <Windows.h>
 
 #include <wrl/client.h>
 
 #include <d3d11_1.h>
-
-#if defined(NTDDI_WIN10_RS2)
 #include <dxgi1_6.h>
-#else
-#include <dxgi1_5.h>
-#endif
 
 #include <DirectXMath.h>
 #include <DirectXColors.h>
@@ -82,11 +79,11 @@ namespace DX
     class com_exception : public std::exception
     {
     public:
-        com_exception(HRESULT hr) : result(hr) {}
+        com_exception(HRESULT hr) noexcept : result(hr) {}
 
         const char* what() const override
         {
-            static char s_str[64] = { 0 };
+            static char s_str[64] = {};
             sprintf_s(s_str, "Failure with HRESULT of %08X", static_cast<unsigned int>(result));
             return s_str;
         }

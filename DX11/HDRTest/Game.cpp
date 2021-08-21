@@ -5,14 +5,14 @@
 #include "pch.h"
 #include "Game.h"
 
-extern void ExitGame();
+extern void ExitGame() noexcept;
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game()
+Game::Game() noexcept(false)
 {
 #if 0
     m_deviceResources = std::make_unique<DX::DeviceResources>(DXGI_FORMAT_R10G10B10A2_UNORM,
@@ -70,9 +70,7 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-    float elapsedTime = float(timer.GetElapsedSeconds());
-
-    float time = float(timer.GetTotalSeconds());
+    auto time = static_cast<float>(timer.GetTotalSeconds());
 
     m_world = Matrix::CreateRotationZ(cosf(time) * 2.f);
 
@@ -190,6 +188,12 @@ void Game::OnResuming()
     // TODO: Game is being power-resumed (or returning from minimize).
 }
 
+void Game::OnWindowMoved()
+{
+    auto r = m_deviceResources->GetOutputSize();
+    m_deviceResources->WindowSizeChanged(r.right, r.bottom);
+}
+
 void Game::OnWindowSizeChanged(int width, int height)
 {
     if (!m_deviceResources->WindowSizeChanged(width, height))
@@ -201,7 +205,7 @@ void Game::OnWindowSizeChanged(int width, int height)
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const
+void Game::GetDefaultSize(int& width, int& height) const noexcept
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
     width = 800;

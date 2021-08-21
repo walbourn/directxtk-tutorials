@@ -36,16 +36,16 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="settings.manifest">
-      <Filter>Assets</Filter>
-    </Manifest>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="heli.wav">
       <Filter>Assets</Filter>
     </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\Common\settings.manifest">
+      <Filter>Assets</Filter>
+    </Manifest>
   </ItemGroup>
 </Project>

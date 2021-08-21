@@ -6,7 +6,9 @@
 #pragma once
 
 #include <winsdkver.h>
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0601
+#endif
 #include <sdkddkver.h>
 
 // Use the C++ standard templated min/max
@@ -32,12 +34,7 @@
 #include <wrl/client.h>
 
 #include <d3d11_1.h>
-
-#if defined(NTDDI_WIN10_RS2)
 #include <dxgi1_6.h>
-#else
-#include <dxgi1_5.h>
-#endif
 
 #include <DirectXMath.h>
 #include <DirectXColors.h>
