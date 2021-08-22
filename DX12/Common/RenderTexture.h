@@ -28,7 +28,8 @@ namespace DX
         RenderTexture(RenderTexture const&) = delete;
         RenderTexture& operator= (RenderTexture const&) = delete;
 
-        void SetDevice(_In_ ID3D12Device* device, D3D12_CPU_DESCRIPTOR_HANDLE srvDescriptor, D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor);
+        void SetDevice(_In_ ID3D12Device* device,
+            D3D12_CPU_DESCRIPTOR_HANDLE srvDescriptor, D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor);
 
         void SizeResources(size_t width, size_t height);
 

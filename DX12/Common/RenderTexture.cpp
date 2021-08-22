@@ -32,7 +32,9 @@ RenderTexture::RenderTexture(DXGI_FORMAT format) noexcept :
 {
 }
 
-void RenderTexture::SetDevice(_In_ ID3D12Device* device, D3D12_CPU_DESCRIPTOR_HANDLE srvDescriptor, D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor)
+void RenderTexture::SetDevice(_In_ ID3D12Device* device,
+    D3D12_CPU_DESCRIPTOR_HANDLE srvDescriptor,
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor)
 {
     if (device == m_device.Get()
         && srvDescriptor.ptr == m_srvDescriptor.ptr
@@ -132,7 +134,8 @@ void RenderTexture::ReleaseDevice() noexcept
     m_srvDescriptor.ptr = m_rtvDescriptor.ptr = 0;
 }
 
-void RenderTexture::TransitionTo(_In_ ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES afterState)
+void RenderTexture::TransitionTo(_In_ ID3D12GraphicsCommandList* commandList,
+    D3D12_RESOURCE_STATES afterState)
 {
     TransitionResource(commandList, m_resource.Get(), m_state, afterState);
     m_state = afterState;
