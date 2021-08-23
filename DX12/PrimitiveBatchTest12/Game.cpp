@@ -12,14 +12,17 @@ using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
+#define MSAA
+#define MSAA_HELPER
+
+#ifdef MSAA
 namespace
 {
     constexpr UINT MSAA_COUNT = 4;
     constexpr UINT MSAA_QUALITY = 0;
     constexpr DXGI_FORMAT MSAA_DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
 }
-
-#define MSAA
+#endif
 
 Game::Game() noexcept(false)
 {
@@ -30,6 +33,15 @@ Game::Game() noexcept(false)
     m_deviceResources = std::make_unique<DX::DeviceResources>();
 #endif
     m_deviceResources->RegisterDeviceNotify(this);
+
+#if defined(MSAA) && defined(MSAA_HELPER)
+    m_msaaHelper = std::make_unique<DX::MSAAHelper>(
+        m_deviceResources->GetBackBufferFormat(),
+        DXGI_FORMAT_D32_FLOAT,
+        MSAA_COUNT);
+
+    m_msaaHelper->SetClearColor(Colors::CornflowerBlue);
+#endif
 }
 
 Game::~Game()
@@ -108,7 +120,7 @@ void Game::Render()
     }
 
     // Prepare the command list to render a new frame.
-#ifdef MSAA 
+#if defined(MSAA) && !defined(MSAA_HELPER)
     m_deviceResources->Prepare(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RESOLVE_DEST);
 #else
     m_deviceResources->Prepare();
@@ -118,9 +130,13 @@ void Game::Render()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
 #ifdef MSAA 
+#ifdef MSAA_HELPER
+    m_msaaHelper->Prepare(commandList);
+#else
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_offscreenRenderTarget.Get(),
         D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &barrier);
+#endif
 #endif
 
     Clear();
@@ -198,11 +214,15 @@ void Game::Render()
     m_batch->End();
 
 #ifdef MSAA
+#ifdef MSAA_HELPER
+    m_msaaHelper->Resolve(commandList, m_deviceResources->GetRenderTarget());
+#else
     barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_offscreenRenderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
     commandList->ResourceBarrier(1, &barrier);
 
     commandList->ResolveSubresource(m_deviceResources->GetRenderTarget(),
         0, m_offscreenRenderTarget.Get(), 0, m_deviceResources->GetBackBufferFormat());
+#endif
 #endif
 
     PIXEndEvent(commandList);
@@ -210,7 +230,11 @@ void Game::Render()
     // Show the new frame.
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Present");
 #ifdef MSAA
+#ifdef MSAA_HELPER
+    m_deviceResources->Present(D3D12_RESOURCE_STATE_PRESENT);
+#else
     m_deviceResources->Present(D3D12_RESOURCE_STATE_RESOLVE_DEST);
+#endif
 #else
     m_deviceResources->Present();
 #endif
@@ -226,8 +250,13 @@ void Game::Clear()
 
     // Clear the views.
 #ifdef MSAA
+#ifdef MSAA_HELPER
+    auto rtvDescriptor = m_msaaHelper->GetMSAARenderTargetView();
+    auto dsvDescriptor = m_msaaHelper->GetMSAADepthStencilView();
+#else
     auto rtvDescriptor = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
     auto dsvDescriptor = m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+#endif
 #else
     auto rtvDescriptor = m_deviceResources->GetRenderTargetView();
     auto dsvDescriptor = m_deviceResources->GetDepthStencilView();
@@ -315,6 +344,9 @@ void Game::CreateDeviceDependentResources()
 
     // TODO: Initialize device dependent objects here (independent of window size).
 #ifdef MSAA
+#ifdef MSAA_HELPER
+    m_msaaHelper->SetDevice(device);
+#else
     // Create descriptor heaps for MSAA.
     D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
     rtvDescriptorHeapDesc.NumDescriptors = 1;
@@ -330,6 +362,7 @@ void Game::CreateDeviceDependentResources()
     DX::ThrowIfFailed(device->CreateDescriptorHeap(
         &dsvDescriptorHeapDesc,
         IID_PPV_ARGS(m_dsvDescriptorHeap.ReleaseAndGetAddressOf())));
+#endif
 #endif
 
     m_graphicsMemory = std::make_unique<GraphicsMemory>(device);
@@ -366,9 +399,15 @@ void Game::CreateDeviceDependentResources()
     m_batch = std::make_unique<PrimitiveBatch<VertexType>>(device);
 
 #ifdef MSAA
+#ifdef MSAA_HELPER
+    RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(),
+        m_msaaHelper->GetDepthBufferFormat());
+    rtState.sampleDesc.Count = m_msaaHelper->GetSampleCount();
+#else
     RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(), MSAA_DEPTH_FORMAT);
     rtState.sampleDesc.Count = MSAA_COUNT;
     rtState.sampleDesc.Quality = MSAA_QUALITY;
+#endif
 #else
     RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(),
         m_deviceResources->GetDepthBufferFormat());
@@ -450,6 +489,9 @@ void Game::CreateWindowSizeDependentResources()
     auto size = m_deviceResources->GetOutputSize();
 
 #ifdef MSAA
+#ifdef MSAA_HELPER
+    m_msaaHelper->SetWindow(size);
+#else
     auto device = m_deviceResources->GetD3DDevice();
 
     // Create the MSAA depth/stencil buffer.
@@ -513,6 +555,7 @@ void Game::CreateWindowSizeDependentResources()
 
     device->CreateRenderTargetView(m_offscreenRenderTarget.Get(), nullptr, m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 #endif
+#endif
 
 #if 0
     Matrix proj = Matrix::CreateScale(2.f / float(size.right),
@@ -546,6 +589,10 @@ void Game::OnDeviceLost()
     m_dsvDescriptorHeap.Reset();
     m_depthStencil.Reset();
     m_offscreenRenderTarget.Reset();
+
+#if defined(MSAA) && defined(MSAA_HELPER)
+    m_msaaHelper->ReleaseDevice();
+#endif
 }
 
 void Game::OnDeviceRestored()

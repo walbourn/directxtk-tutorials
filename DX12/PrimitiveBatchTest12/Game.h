@@ -6,6 +6,7 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "MSAAHelper.h"
 
 
 // A basic game implementation that creates a D3D12 device and
@@ -100,4 +101,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_offscreenRenderTarget;
+
+    std::unique_ptr<DX::MSAAHelper> m_msaaHelper;
 };

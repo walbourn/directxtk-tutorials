@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <wrl/client.h>
+
 namespace DX
 {
     class MSAAHelper

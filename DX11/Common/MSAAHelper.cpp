@@ -36,6 +36,7 @@ MSAAHelper::MSAAHelper(DXGI_FORMAT backBufferFormat,
     unsigned int sampleCount) noexcept(false) :
         m_backBufferFormat(backBufferFormat),
         m_depthBufferFormat(depthBufferFormat),
+        m_sampleCount(0),
         m_targetSampleCount(sampleCount),
         m_width(0),
         m_height(0)
@@ -152,7 +153,6 @@ void MSAAHelper::SizeResources(size_t width, size_t height)
     ));
 
     SetDebugObjectName(m_msaaRenderTarget.Get(), "MSAA Render Target");
-
 
     CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2DMS, m_backBufferFormat);
 

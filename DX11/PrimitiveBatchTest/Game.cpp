@@ -13,7 +13,7 @@ using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
 
 #define MSAA
-//#define MSAA_HELPER
+#define MSAA_HELPER
 
 #ifdef MSAA
 namespace
