@@ -6,7 +6,9 @@
 #pragma once
 
 #include <winsdkver.h>
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0A00
+#endif
 #include <sdkddkver.h>
 
 // Use the C++ standard templated min/max
@@ -32,13 +34,14 @@
 #include <wrl/client.h>
 #include <wrl/event.h>
 
-#include <d3d12.h>
-
-#if defined(NTDDI_WIN10_RS2)
-#include <dxgi1_6.h>
+#ifdef USING_DIRECTX_HEADERS
+#include <directx/dxgiformat.h>
+#include <directx/d3d12.h>
 #else
-#include <dxgi1_5.h>
+#include <d3d12.h>
 #endif
+
+#include <dxgi1_6.h>
 
 #include <DirectXMath.h>
 #include <DirectXColors.h>
@@ -96,7 +99,7 @@ namespace DX
     class com_exception : public std::exception
     {
     public:
-        com_exception(HRESULT hr) : result(hr) {}
+        com_exception(HRESULT hr) noexcept : result(hr) {}
 
         const char* what() const override
         {

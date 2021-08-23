@@ -5,7 +5,7 @@
 #include "pch.h"
 #include "Game.h"
 
-extern void ExitGame();
+extern void ExitGame() noexcept;
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -83,12 +83,8 @@ void Game::Update(DX::StepTimer const& timer)
 {
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
 
-    float elapsedTime = float(timer.GetElapsedSeconds());
-
     // TODO: Add your game logic here.
-    elapsedTime;
-
-    float time = float(timer.GetTotalSeconds());
+    auto time = static_cast<float>(timer.GetTotalSeconds());
 
     m_world = Matrix::CreateRotationZ(cosf(time) * 2.f);
 
@@ -164,10 +160,10 @@ void Game::Render()
     PIXEndEvent(commandList);
 
     // Show the new frame.
-    PIXBeginEvent(m_deviceResources->GetCommandQueue(), PIX_COLOR_DEFAULT, L"Present");
+    PIXBeginEvent(PIX_COLOR_DEFAULT, L"Present");
     m_deviceResources->Present();
     m_graphicsMemory->Commit(m_deviceResources->GetCommandQueue());
-    PIXEndEvent(m_deviceResources->GetCommandQueue());
+    PIXEndEvent();
 }
 
 // Helper method to clear the back buffers.
@@ -239,7 +235,7 @@ void Game::OnWindowSizeChanged(int width, int height)
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const
+void Game::GetDefaultSize(int& width, int& height) const noexcept
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
     width = 1920;
@@ -252,6 +248,17 @@ void Game::GetDefaultSize(int& width, int& height) const
 void Game::CreateDeviceDependentResources()
 {
     auto device = m_deviceResources->GetD3DDevice();
+
+    // Check Shader Model 6 support
+    D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = { D3D_SHADER_MODEL_6_0 };
+    if (FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)))
+        || (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0))
+    {
+#ifdef _DEBUG
+        OutputDebugStringA("ERROR: Shader Model 6.0 is not supported!\n");
+#endif
+        throw std::runtime_error("Shader Model 6.0 is not supported!");
+    }
 
     // TODO: Initialize device dependent objects here (independent of window size).
     m_graphicsMemory = std::make_unique<GraphicsMemory>(device);

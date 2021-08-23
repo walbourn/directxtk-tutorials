@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Common">
-      <UniqueIdentifier>27036697-8e83-43f9-8e65-f4b60560c687</UniqueIdentifier>
+      <UniqueIdentifier>02c2a2d5-6aa3-49e4-b91c-0fcf95608de2</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>2d016129-1ab5-41c7-b829-0b17242db9e9</UniqueIdentifier>
+      <UniqueIdentifier>7faab286-ff67-45c7-8d9e-3e9719f5c1f5</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
@@ -16,6 +16,9 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\DeviceResources.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\RenderTexture.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\StepTimer.h">
@@ -29,6 +32,9 @@
     <ClCompile Include="..\Common\DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\RenderTexture.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -37,10 +43,10 @@
     <Image Include="directx.ico">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="cat.png">
+    <Image Include="cat.DDS">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="cat.DDS">
+    <Image Include="cat.png">
       <Filter>Assets</Filter>
     </Image>
     <Image Include="sunset.jpg">
@@ -48,7 +54,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="settings.manifest">
+    <Manifest Include="..\Common\settings.manifest">
       <Filter>Assets</Filter>
     </Manifest>
   </ItemGroup>

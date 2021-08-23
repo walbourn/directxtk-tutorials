@@ -7,6 +7,7 @@
 #include "DeviceResources.h"
 #include "StepTimer.h"
 
+
 // A basic game implementation that creates a D3D12 device and
 // provides a game loop.
 class Game final : public DX::IDeviceNotify
@@ -15,6 +16,12 @@ public:
 
     Game() noexcept(false);
     ~Game();
+
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
 
     // Initialization and management
     void Initialize(HWND window, int width, int height);
@@ -35,7 +42,7 @@ public:
     void OnWindowSizeChanged(int width, int height);
 
     // Properties
-    void GetDefaultSize(int& width, int& height) const;
+    void GetDefaultSize( int& width, int& height ) const noexcept;
 
 private:
 

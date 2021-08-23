@@ -5,17 +5,27 @@
 #include "pch.h"
 #include "Game.h"
 
+extern void ExitGame() noexcept;
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-//#define MSAA
+namespace
+{
+    constexpr UINT MSAA_COUNT = 4;
+    constexpr UINT MSAA_QUALITY = 0;
+    constexpr DXGI_FORMAT MSAA_DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
+}
+
+#define MSAA
 
 Game::Game() noexcept(false)
 {
 #ifdef MSAA
-    m_deviceResources = std::make_unique<DX::DeviceResources>(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_UNKNOWN);
+    m_deviceResources = std::make_unique<DX::DeviceResources>(
+        DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_UNKNOWN);
 #else
     m_deviceResources = std::make_unique<DX::DeviceResources>();
 #endif
@@ -66,10 +76,11 @@ void Game::Update(DX::StepTimer const& timer)
 {
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
 
-#if 0
-    m_world = Matrix::CreateRotationY(cosf(static_cast<float>(timer.GetTotalSeconds())));
-#elif 1
-    auto time = static_cast<float>(m_timer.GetTotalSeconds());
+    auto time = static_cast<float>(timer.GetTotalSeconds());
+
+#if 1
+    m_world = Matrix::CreateRotationY(cosf(time));
+#elif 0
 
     float yaw = time * 0.4f;
     float pitch = time * 0.7f;
@@ -107,7 +118,7 @@ void Game::Render()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
 #ifdef MSAA 
-    D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_offscreenRenderTarget.Get(),
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_offscreenRenderTarget.Get(),
         D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &barrier);
 #endif
@@ -118,7 +129,7 @@ void Game::Render()
     commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
     // TODO: Add your rendering code here.
-#if 0
+#if 1
     m_effect->SetWorld(m_world);
 #endif
 
@@ -126,7 +137,7 @@ void Game::Render()
 
     m_batch->Begin(commandList);
 
-#if 1
+#if 0
 #if 0
     VertexPositionColor v1(Vector3(0.f, 0.5f, 0.5f), Colors::Yellow);
     VertexPositionColor v2(Vector3(0.5f, -0.5f, 0.5f), Colors::Yellow);
@@ -135,6 +146,10 @@ void Game::Render()
     VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Yellow);
     VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Yellow);
     VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Yellow);
+#elif 0
+    VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Red);
+    VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Green);
+    VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Blue);
 #elif 0
     VertexPositionTexture v1(Vector3(400.f, 150.f, 0.f), Vector2(.5f, 0));
     VertexPositionTexture v2(Vector3(600.f, 450.f, 0.f), Vector2(1, 1));
@@ -148,7 +163,7 @@ void Game::Render()
     m_batch->DrawTriangle(v1, v2, v3);
 #endif
 
-#if 0
+#if 1
     Vector3 xaxis(2.f, 0.f, 0.f);
     Vector3 yaxis(0.f, 0.f, 2.f);
     Vector3 origin = Vector3::Zero;
@@ -193,17 +208,17 @@ void Game::Render()
     PIXEndEvent(commandList);
 
     // Show the new frame.
-    PIXBeginEvent(m_deviceResources->GetCommandQueue(), PIX_COLOR_DEFAULT, L"Present");
+    PIXBeginEvent(PIX_COLOR_DEFAULT, L"Present");
 #ifdef MSAA
     m_deviceResources->Present(D3D12_RESOURCE_STATE_RESOLVE_DEST);
 #else
     m_deviceResources->Present();
 #endif
     m_graphicsMemory->Commit(m_deviceResources->GetCommandQueue());
-    PIXEndEvent(m_deviceResources->GetCommandQueue());
+    PIXEndEvent();
 }
 
-// Helper method to prepare the command list for rendering and clear the back buffers.
+// Helper method to clear the back buffers.
 void Game::Clear()
 {
     auto commandList = m_deviceResources->GetCommandList();
@@ -273,7 +288,7 @@ void Game::OnWindowSizeChanged(int width, int height)
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const
+void Game::GetDefaultSize(int& width, int& height) const noexcept
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
     width = 800;
@@ -281,16 +296,26 @@ void Game::GetDefaultSize(int& width, int& height) const
 }
 #pragma endregion
 
-
 #pragma region Direct3D Resources
 // These are the resources that depend on the device.
 void Game::CreateDeviceDependentResources()
 {
     auto device = m_deviceResources->GetD3DDevice();
 
+    // Check Shader Model 6 support
+    D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = { D3D_SHADER_MODEL_6_0 };
+    if (FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)))
+        || (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0))
+    {
+#ifdef _DEBUG
+        OutputDebugStringA("ERROR: Shader Model 6.0 is not supported!\n");
+#endif
+        throw std::runtime_error("Shader Model 6.0 is not supported!");
+    }
+
     // TODO: Initialize device dependent objects here (independent of window size).
 #ifdef MSAA
-    // Create descriptor heaps for render target views and depth stencil views for MSAA
+    // Create descriptor heaps for MSAA.
     D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
     rtvDescriptorHeapDesc.NumDescriptors = 1;
     rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -299,8 +324,12 @@ void Game::CreateDeviceDependentResources()
     dsvDescriptorHeapDesc.NumDescriptors = 1;
     dsvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 
-    DX::ThrowIfFailed(device->CreateDescriptorHeap(&rtvDescriptorHeapDesc, IID_PPV_ARGS(m_rtvDescriptorHeap.ReleaseAndGetAddressOf())));
-    DX::ThrowIfFailed(device->CreateDescriptorHeap(&dsvDescriptorHeapDesc, IID_PPV_ARGS(m_dsvDescriptorHeap.ReleaseAndGetAddressOf())));
+    DX::ThrowIfFailed(device->CreateDescriptorHeap(
+        &rtvDescriptorHeapDesc,
+        IID_PPV_ARGS(m_rtvDescriptorHeap.ReleaseAndGetAddressOf())));
+    DX::ThrowIfFailed(device->CreateDescriptorHeap(
+        &dsvDescriptorHeapDesc,
+        IID_PPV_ARGS(m_dsvDescriptorHeap.ReleaseAndGetAddressOf())));
 #endif
 
     m_graphicsMemory = std::make_unique<GraphicsMemory>(device);
@@ -321,7 +350,7 @@ void Game::CreateDeviceDependentResources()
     CreateShaderResourceView(device, m_texture.Get(),
         m_resourceDescriptors->GetCpuHandle(Descriptors::Rocks));
 
-#if 1
+#if 0
     DX::ThrowIfFailed(
         CreateDDSTextureFromFile(device, resourceUpload, L"rocks_normalmap.dds",
             m_normalMap.ReleaseAndGetAddressOf()));
@@ -336,12 +365,16 @@ void Game::CreateDeviceDependentResources()
 
     m_batch = std::make_unique<PrimitiveBatch<VertexType>>(device);
 
-    RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
 #ifdef MSAA
-    rtState.sampleDesc.Count = 4; // <--- 4x MSAA
+    RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(), MSAA_DEPTH_FORMAT);
+    rtState.sampleDesc.Count = MSAA_COUNT;
+    rtState.sampleDesc.Quality = MSAA_QUALITY;
+#else
+    RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(),
+        m_deviceResources->GetDepthBufferFormat());
 #endif
     
-#if 1
+#if 0
     EffectPipelineStateDescription pd(
         &VertexType::InputLayout,
         CommonStates::Opaque,
@@ -358,7 +391,6 @@ void Game::CreateDeviceDependentResources()
         rtState);
 #endif
 
-
 #if 0
     EffectPipelineStateDescription pd(
         &VertexType::InputLayout,
@@ -369,16 +401,18 @@ void Game::CreateDeviceDependentResources()
         D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 #endif
 
-#if 0
+#if 1
 #if 0
     // AA lines
-    CD3DX12_RASTERIZER_DESC rastDesc(D3D12_FILL_MODE_SOLID, D3D12_CULL_MODE_NONE, FALSE,
+    CD3DX12_RASTERIZER_DESC rastDesc(D3D12_FILL_MODE_SOLID,
+        D3D12_CULL_MODE_NONE, FALSE,
         D3D12_DEFAULT_DEPTH_BIAS, D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
         D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS, TRUE, FALSE, TRUE,
         0, D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF);
 #else
     // MSAA
-    CD3DX12_RASTERIZER_DESC rastDesc(D3D12_FILL_MODE_SOLID, D3D12_CULL_MODE_NONE, FALSE,
+    CD3DX12_RASTERIZER_DESC rastDesc(D3D12_FILL_MODE_SOLID,
+        D3D12_CULL_MODE_NONE, FALSE,
         D3D12_DEFAULT_DEPTH_BIAS, D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
         D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS, TRUE, TRUE, FALSE,
         0, D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF);
@@ -393,7 +427,7 @@ void Game::CreateDeviceDependentResources()
         D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 #endif
 
-#if 0
+#if 1
     m_effect = std::make_unique<BasicEffect>(device, EffectFlags::VertexColor, pd);
 #elif 0
     m_effect = std::make_unique<BasicEffect>(device, EffectFlags::Texture, pd);
@@ -418,25 +452,27 @@ void Game::CreateWindowSizeDependentResources()
 #ifdef MSAA
     auto device = m_deviceResources->GetD3DDevice();
 
-    CD3DX12_HEAP_PROPERTIES depthHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+    // Create the MSAA depth/stencil buffer.
+    CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
 
-    D3D12_RESOURCE_DESC depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-        DXGI_FORMAT_D32_FLOAT,
+    auto depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+        MSAA_DEPTH_FORMAT,
         static_cast<UINT>(size.right),
         static_cast<UINT>(size.bottom),
         1, // This depth stencil view has only one texture.
         1, // Use a single mipmap level
-        4  // <--- Use 4x MSAA 
+        MSAA_COUNT,
+        MSAA_QUALITY
     );
     depthStencilDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
     D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-    depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+    depthOptimizedClearValue.Format = MSAA_DEPTH_FORMAT;
     depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
     depthOptimizedClearValue.DepthStencil.Stencil = 0;
 
     DX::ThrowIfFailed(device->CreateCommittedResource(
-        &depthHeapProperties,
+        &heapProperties,
         D3D12_HEAP_FLAG_NONE,
         &depthStencilDesc,
         D3D12_RESOURCE_STATE_DEPTH_WRITE,
@@ -444,21 +480,21 @@ void Game::CreateWindowSizeDependentResources()
         IID_PPV_ARGS(m_depthStencil.ReleaseAndGetAddressOf())
         ));
 
-    m_depthStencil->SetName(L"MSAA Depth stencil");
-
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.Format = MSAA_DEPTH_FORMAT;
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
 
     device->CreateDepthStencilView(m_depthStencil.Get(), &dsvDesc, m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-    D3D12_RESOURCE_DESC msaaRTDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+    // Create the MSAA render target.
+    auto msaaRTDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         m_deviceResources->GetBackBufferFormat(),
         static_cast<UINT>(size.right),
         static_cast<UINT>(size.bottom),
         1, // This render target view has only one texture.
         1, // Use a single mipmap level
-        4  // <--- Use 4x MSAA 
+        MSAA_COUNT,
+        MSAA_QUALITY
     );
     msaaRTDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
@@ -467,7 +503,7 @@ void Game::CreateWindowSizeDependentResources()
     memcpy(msaaOptimizedClearValue.Color, Colors::CornflowerBlue, sizeof(float) * 4);
 
     DX::ThrowIfFailed(device->CreateCommittedResource(
-        &depthHeapProperties,
+        &heapProperties,
         D3D12_HEAP_FLAG_NONE,
         &msaaRTDesc,
         D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
@@ -475,23 +511,21 @@ void Game::CreateWindowSizeDependentResources()
         IID_PPV_ARGS(m_offscreenRenderTarget.ReleaseAndGetAddressOf())
     ));
 
-    m_offscreenRenderTarget->SetName(L"MSAA Render Target");
-
     device->CreateRenderTargetView(m_offscreenRenderTarget.Get(), nullptr, m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 #endif
 
-#if 1
+#if 0
     Matrix proj = Matrix::CreateScale(2.f / float(size.right),
         -2.f / float(size.bottom), 1.f)
         * Matrix::CreateTranslation(-1.f, 1.f, 0.f);
     m_effect->SetProjection(proj);
 #endif
 
-#if 0
+#if 1
     m_view = Matrix::CreateLookAt(Vector3(2.f, 2.f, 2.f),
         Vector3::Zero, Vector3::UnitY);
     m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-        float(size.right) / float(fbottom), 0.1f, 10.f);
+        float(size.right) / float(size.bottom), 0.1f, 10.f);
 
     m_effect->SetView(m_view);
     m_effect->SetProjection(m_proj);

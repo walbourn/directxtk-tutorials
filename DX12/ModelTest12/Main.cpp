@@ -7,19 +7,30 @@
 
 using namespace DirectX;
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
+#pragma clang diagnostic ignored "-Wswitch-enum"
+#endif
+
+#pragma warning(disable : 4061)
+
+#ifdef USING_D3D12_AGILITY_SDK
+extern "C"
+{
+    // Used to enable the "Agility SDK" components
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION;
+    __declspec(dllexport) extern const char* D3D12SDKPath = u8".\\D3D12\\";
+}
+#endif
+
 namespace
 {
     std::unique_ptr<Game> g_game;
-};
+}
+
+LPCWSTR g_szAppName = L"ModelTest12";
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-// Indicates to hybrid graphics systems to prefer the discrete part by default
-extern "C"
-{
-    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-}
 
 // Entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -46,7 +57,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         wcex.hInstance = hInstance;
         wcex.hIcon = LoadIconW(hInstance, L"IDI_ICON");
         wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
-        wcex.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+        wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
         wcex.lpszClassName = L"ModelTest12WindowClass";
         wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
         if (!RegisterClassExW(&wcex))
@@ -60,10 +71,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-        HWND hwnd = CreateWindowExW(0, L"ModelTest12WindowClass", L"ModelTest12", WS_OVERLAPPEDWINDOW,
+        HWND hwnd = CreateWindowExW(0, L"ModelTest12WindowClass", g_szAppName, WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
             nullptr);
-        // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"ModelTest12WindowClass", L"ModelTest12", WS_POPUP,
+        // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"ModelTest12WindowClass", g_szAppName, WS_POPUP,
         // to default to fullscreen.
 
         if (!hwnd)
@@ -96,15 +107,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     g_game.reset();
 
-    return (int) msg.wParam;
+    return static_cast<int>(msg.wParam);
 }
 
 // Windows procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    PAINTSTRUCT ps;
-    HDC hdc;
-
     static bool s_in_sizemove = false;
     static bool s_in_suspend = false;
     static bool s_minimized = false;
@@ -122,7 +130,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            hdc = BeginPaint(hWnd, &ps);
+            PAINTSTRUCT ps;
+            (void)BeginPaint(hWnd, &ps);
             EndPaint(hWnd, &ps);
         }
         break;
@@ -174,6 +183,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_GETMINMAXINFO:
+        if (lParam)
         {
             auto info = reinterpret_cast<MINMAXINFO*>(lParam);
             info->ptMinTrackSize.x = 320;
@@ -239,7 +249,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             else
             {
-                SetWindowLongPtr(hWnd, GWL_STYLE, 0);
+                SetWindowLongPtr(hWnd, GWL_STYLE, WS_POPUP);
                 SetWindowLongPtr(hWnd, GWL_EXSTYLE, WS_EX_TOPMOST);
 
                 SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -262,7 +272,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 // Exit helper
-void ExitGame()
+void ExitGame() noexcept
 {
     PostQuitMessage(0);
 }

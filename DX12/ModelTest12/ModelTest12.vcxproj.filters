@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Common">
-      <UniqueIdentifier>94a66287-f703-4198-b3e8-911d7df0f27a</UniqueIdentifier>
+      <UniqueIdentifier>11288fc8-8fa8-4336-a6e8-b0ba24151486</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>bb749708-15ca-4408-ad18-48b8184404f2</UniqueIdentifier>
+      <UniqueIdentifier>40c78138-548e-4013-9908-cf6e3f76701f</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
@@ -37,19 +37,13 @@
     <Image Include="directx.ico">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="cup.jpg">
-      <Filter>Assets</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="settings.manifest">
+    <Manifest Include="..\Common\settings.manifest">
       <Filter>Assets</Filter>
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cup.sdkmesh">
-      <Filter>Assets</Filter>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -4,28 +4,34 @@
 
 #pragma once
 
+#include "DeviceResources.h"
 #include "StepTimer.h"
 
 
 // A basic game implementation that creates a D3D12 device and
 // provides a game loop.
-class Game
+class Game final : public DX::IDeviceNotify
 {
 public:
 
-    Game();
+    Game() noexcept(false);
     ~Game();
+
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
 
     // Initialization and management
     void Initialize(HWND window, int width, int height);
 
     // Basic game loop
     void Tick();
-    void Render();
 
-    // Rendering helpers
-    void Clear();
-    void Present();
+    // IDeviceNotify
+    void OnDeviceLost() override;
+    void OnDeviceRestored() override;
 
     // Messages
     void OnActivated();
@@ -36,49 +42,23 @@ public:
     void OnWindowSizeChanged(int width, int height);
 
     // Properties
-    void GetDefaultSize( int& width, int& height ) const;
+    void GetDefaultSize( int& width, int& height ) const noexcept;
 
 private:
 
     void Update(DX::StepTimer const& timer);
+    void Render();
 
-    void CreateDevice();
-    void CreateResources();
+    void Clear();
 
-    void WaitForGpu() noexcept;
-    void MoveToNextFrame();
-    void GetAdapter(IDXGIAdapter1** ppAdapter);
+    void CreateDeviceDependentResources();
+    void CreateWindowSizeDependentResources();
 
-    void OnDeviceLost();
+    // Device resources.
+    std::unique_ptr<DX::DeviceResources>    m_deviceResources;
 
-    // Application state
-    HWND                                                m_window;
-    int                                                 m_outputWidth;
-    int                                                 m_outputHeight;
-
-    // Direct3D Objects
-    D3D_FEATURE_LEVEL                                   m_featureLevel;
-    static const UINT                                   c_swapBufferCount = 2;
-    UINT                                                m_backBufferIndex;
-    UINT                                                m_rtvDescriptorSize;
-    Microsoft::WRL::ComPtr<ID3D12Device>                m_d3dDevice;
-    Microsoft::WRL::ComPtr<IDXGIFactory4>               m_dxgiFactory;
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue>          m_commandQueue;
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>        m_rtvDescriptorHeap;
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>        m_dsvDescriptorHeap;
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator>      m_commandAllocators[c_swapBufferCount];
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>   m_commandList;
-    Microsoft::WRL::ComPtr<ID3D12Fence>                 m_fence;
-    UINT64                                              m_fenceValues[c_swapBufferCount];
-    Microsoft::WRL::Wrappers::Event                     m_fenceEvent;
-
-    // Rendering resources
-    Microsoft::WRL::ComPtr<IDXGISwapChain3>             m_swapChain;
-    Microsoft::WRL::ComPtr<ID3D12Resource>              m_renderTargets[c_swapBufferCount];
-    Microsoft::WRL::ComPtr<ID3D12Resource>              m_depthStencil;
-
-    // Game state
-    DX::StepTimer                                       m_timer;
+    // Rendering loop timer.
+    DX::StepTimer                           m_timer;
 
     std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
     std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;

@@ -6,17 +6,23 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
-
 #include "RenderTexture.h"
+
 
 // A basic game implementation that creates a D3D12 device and
 // provides a game loop.
-class Game : public DX::IDeviceNotify
+class Game final : public DX::IDeviceNotify
 {
 public:
 
     Game() noexcept(false);
     ~Game();
+
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
 
     // Initialization and management
     void Initialize(HWND window, int width, int height);
@@ -37,7 +43,7 @@ public:
     void OnWindowSizeChanged(int width, int height);
 
     // Properties
-    void GetDefaultSize( int& width, int& height ) const;
+    void GetDefaultSize( int& width, int& height ) const noexcept;
 
 private:
 
@@ -55,7 +61,6 @@ private:
     // Rendering loop timer.
     DX::StepTimer                           m_timer;
 
-    // DirectXTK objects
     std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
 
     std::unique_ptr<DX::RenderTexture> m_hdrScene;

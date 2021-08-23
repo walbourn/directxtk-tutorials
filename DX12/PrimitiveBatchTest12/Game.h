@@ -17,6 +17,12 @@ public:
     Game() noexcept(false);
     ~Game();
 
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
+
     // Initialization and management
     void Initialize(HWND window, int width, int height);
 
@@ -36,7 +42,7 @@ public:
     void OnWindowSizeChanged(int width, int height);
 
     // Properties
-    void GetDefaultSize( int& width, int& height ) const;
+    void GetDefaultSize( int& width, int& height ) const noexcept;
 
 private:
 
@@ -51,18 +57,12 @@ private:
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
 
-    // MSAA
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_offscreenRenderTarget;
-
-    // Game state
-    DX::StepTimer                                       m_timer;
+    // Rendering loop timer.
+    DX::StepTimer                           m_timer;
 
     std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
 
-#if 0
+#if 1
     using VertexType = DirectX::VertexPositionColor;
 #elif 0
     using VertexType = DirectX::VertexPositionTexture;
@@ -70,7 +70,7 @@ private:
     using VertexType = DirectX::VertexPositionNormalTexture;
 #endif
 
-#if 0
+#if 1
     std::unique_ptr<DirectX::BasicEffect> m_effect;
 #else
     std::unique_ptr<DirectX::NormalMapEffect> m_effect;
@@ -94,4 +94,10 @@ private:
     DirectX::SimpleMath::Matrix m_world;
     DirectX::SimpleMath::Matrix m_view;
     DirectX::SimpleMath::Matrix m_proj;
+
+    // MSAA
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_offscreenRenderTarget;
 };

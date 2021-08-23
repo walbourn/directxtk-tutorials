@@ -17,6 +17,12 @@ public:
     Game() noexcept(false);
     ~Game();
 
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
+
     // Initialization and management
     void Initialize(HWND window, int width, int height);
 
@@ -36,7 +42,7 @@ public:
     void OnWindowSizeChanged(int width, int height);
 
     // Properties
-    void GetDefaultSize( int& width, int& height ) const;
+    void GetDefaultSize( int& width, int& height ) const noexcept;
 
 private:
 
@@ -51,20 +57,20 @@ private:
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
 
-    // Game state
-    DX::StepTimer                                       m_timer;
+    // Rendering loop timer.
+    DX::StepTimer                           m_timer;
 
-    std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
-    std::unique_ptr<DirectX::CommonStates> m_states;
+    std::unique_ptr<DirectX::GraphicsMemory>    m_graphicsMemory;
+    std::unique_ptr<DirectX::CommonStates>      m_states;
 
     DirectX::SimpleMath::Matrix m_world;
     DirectX::SimpleMath::Matrix m_view;
     DirectX::SimpleMath::Matrix m_proj;
 
-    std::unique_ptr<DirectX::EffectFactory> m_fxFactory;
-    std::unique_ptr<DirectX::EffectTextureFactory> m_modelResources;
-    std::unique_ptr<DirectX::Model> m_model;
-    std::vector<std::shared_ptr<DirectX::IEffect>> m_modelNormal;
-    std::vector<std::shared_ptr<DirectX::IEffect>> m_modelWireframe;
-    std::vector<std::shared_ptr<DirectX::IEffect>> m_modelFog;
+    std::unique_ptr<DirectX::EffectFactory>         m_fxFactory;
+    std::unique_ptr<DirectX::EffectTextureFactory>  m_modelResources;
+    std::unique_ptr<DirectX::Model>                 m_model;
+    std::vector<std::shared_ptr<DirectX::IEffect>>  m_modelNormal;
+    std::vector<std::shared_ptr<DirectX::IEffect>>  m_modelWireframe;
+    std::vector<std::shared_ptr<DirectX::IEffect>>  m_modelFog;
 };

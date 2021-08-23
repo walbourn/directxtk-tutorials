@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Common">
-      <UniqueIdentifier>088889d5-c3e2-4d74-a84d-9ef4567f8462</UniqueIdentifier>
+      <UniqueIdentifier>5818c658-da3c-4ffd-91cc-876b54926dcf</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>26fb5507-c5e9-4da6-a384-2a466b6bdf6c</UniqueIdentifier>
+      <UniqueIdentifier>59b525b8-fe7e-4ce7-8a7d-896636867522</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
@@ -40,12 +40,15 @@
     <Image Include="rocks.jpg">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="rocks_NM_height.dds">
+      <Filter>Assets</Filter>
+    </Image>
     <Image Include="rocks_normalmap.dds">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="settings.manifest">
+    <Manifest Include="..\Common\settings.manifest">
       <Filter>Assets</Filter>
     </Manifest>
   </ItemGroup>

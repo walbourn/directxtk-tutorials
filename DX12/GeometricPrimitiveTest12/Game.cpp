@@ -5,6 +5,8 @@
 #include "pch.h"
 #include "Game.h"
 
+extern void ExitGame() noexcept;
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
@@ -60,18 +62,14 @@ void Game::Update(DX::StepTimer const& timer)
 {
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
 
-    float elapsedTime = float(timer.GetElapsedSeconds());
+    auto time = static_cast<float>(timer.GetTotalSeconds());
 
     // TODO: Add your game logic here.
 #if 0
-    float time = float(timer.GetTotalSeconds());
-
     m_world = Matrix::CreateRotationZ(cosf(time) * 2.f);
 #endif
 
 #if 1
-    float time = float(timer.GetTotalSeconds());
-
     m_world = Matrix::CreateRotationY(time);
 #endif
 
@@ -100,7 +98,7 @@ void Game::Render()
     ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap(), m_states->Heap() };
     commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
-    m_effect->SetMatrices(m_world, m_view, m_proj);
+    m_effect->SetWorld(m_world);
 
     m_effect->Apply(commandList);
 
@@ -109,10 +107,10 @@ void Game::Render()
     PIXEndEvent(commandList);
 
     // Show the new frame.
-    PIXBeginEvent(m_deviceResources->GetCommandQueue(), PIX_COLOR_DEFAULT, L"Present");
+    PIXBeginEvent(PIX_COLOR_DEFAULT, L"Present");
     m_deviceResources->Present();
-    PIXEndEvent(m_deviceResources->GetCommandQueue());
     m_graphicsMemory->Commit(m_deviceResources->GetCommandQueue());
+    PIXEndEvent();
 }
 
 // Helper method to clear the back buffers.
@@ -180,7 +178,7 @@ void Game::OnWindowSizeChanged(int width, int height)
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const
+void Game::GetDefaultSize(int& width, int& height) const noexcept
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
     width = 1920;
@@ -194,6 +192,17 @@ void Game::CreateDeviceDependentResources()
 {
     auto device = m_deviceResources->GetD3DDevice();
 
+    // Check Shader Model 6 support
+    D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = { D3D_SHADER_MODEL_6_0 };
+    if (FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)))
+        || (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0))
+    {
+#ifdef _DEBUG
+        OutputDebugStringA("ERROR: Shader Model 6.0 is not supported!\n");
+#endif
+        throw std::runtime_error("Shader Model 6.0 is not supported!");
+    }
+
     // TODO: Initialize device dependent objects here (independent of window size).
     m_graphicsMemory = std::make_unique<GraphicsMemory>(device);
 
@@ -201,6 +210,12 @@ void Game::CreateDeviceDependentResources()
 
     m_resourceDescriptors = std::make_unique<DescriptorHeap>(device,
         Descriptors::Count);
+
+    m_shape = GeometricPrimitive::CreateSphere();
+
+#if 0
+    m_shape = GeometricPrimitive::CreateTorus();
+#endif
 
     ResourceUploadBatch resourceUpload(device);
 
@@ -213,11 +228,17 @@ void Game::CreateDeviceDependentResources()
     CreateShaderResourceView(device, m_texture.Get(),
         m_resourceDescriptors->GetCpuHandle(Descriptors::Earth));
 
-    auto uploadResourcesFinished = resourceUpload.End(m_deviceResources->GetCommandQueue());
+#if 1
+    m_shape->LoadStaticBuffers(device, resourceUpload);
+#endif
+
+    auto uploadResourcesFinished = resourceUpload.End(
+        m_deviceResources->GetCommandQueue());
 
     uploadResourcesFinished.wait();
 
-    RenderTargetState rtState(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
+    RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(),
+        m_deviceResources->GetDepthBufferFormat());
 
     EffectPipelineStateDescription pd(
         &GeometricPrimitive::VertexType::InputLayout,
@@ -237,12 +258,6 @@ void Game::CreateDeviceDependentResources()
     m_effect->SetTexture(m_resourceDescriptors->GetGpuHandle(Descriptors::Earth),
         m_states->AnisotropicWrap());
 
-    m_shape = GeometricPrimitive::CreateSphere();
-
-#if 0
-    m_shape = GeometricPrimitive::CreateTorus();
-#endif
-
     m_world = Matrix::Identity;
 }
 
@@ -256,6 +271,9 @@ void Game::CreateWindowSizeDependentResources()
         Vector3::Zero, Vector3::UnitY);
     m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
         float(size.right) / float(size.bottom), 0.1f, 10.f);
+
+    m_effect->SetView(m_view);
+    m_effect->SetProjection(m_proj);
 }
 
 void Game::OnDeviceLost()

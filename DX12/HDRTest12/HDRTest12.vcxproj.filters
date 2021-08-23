@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Common">
-      <UniqueIdentifier>80f967de-c996-44b1-af18-70913ebaecae</UniqueIdentifier>
+      <UniqueIdentifier>0f80e229-d884-4a5a-bd15-10d23e83cb0f</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>6f8e1701-223b-4c10-b7e4-2fca0191c44d</UniqueIdentifier>
+      <UniqueIdentifier>c2c0e4f0-4feb-496c-856c-958a37d3e0f9</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
@@ -18,10 +18,10 @@
     <ClInclude Include="..\Common\DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\StepTimer.h">
+    <ClInclude Include="..\Common\RenderTexture.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\RenderTexture.h">
+    <ClInclude Include="..\Common\StepTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
@@ -45,7 +45,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="settings.manifest">
+    <Manifest Include="..\Common\settings.manifest">
       <Filter>Assets</Filter>
     </Manifest>
   </ItemGroup>

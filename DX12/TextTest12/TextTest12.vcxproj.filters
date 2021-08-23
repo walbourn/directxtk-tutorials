@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Common">
-      <UniqueIdentifier>d1edcd69-c59c-40be-ad27-c2bbe1b547cc</UniqueIdentifier>
+      <UniqueIdentifier>2d8ca273-a0dc-45b4-af7f-bed11b1c475b</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>376a5f3d-881f-49ca-a9ed-fded5bf5e84e</UniqueIdentifier>
+      <UniqueIdentifier>4f400c42-c579-4ec9-bbc0-8947fcde264a</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
@@ -39,14 +39,14 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="settings.manifest">
+    <Manifest Include="..\Common\settings.manifest">
       <Filter>Assets</Filter>
     </Manifest>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="myfile.spritefont">
       <Filter>Assets</Filter>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>
