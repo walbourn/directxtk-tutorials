@@ -65,11 +65,18 @@ private:
 
     std::unique_ptr<DirectX::GeometricPrimitive>    m_room;
 
+    DirectX::SimpleMath::Matrix                     m_view;
     DirectX::SimpleMath::Matrix                     m_proj;
-    DirectX::SimpleMath::Vector3                    m_cameraPos;
 
+    // FPS-style
     float                                           m_pitch;
     float                                           m_yaw;
+    DirectX::SimpleMath::Vector3                    m_cameraPos;
+
+    // Orbit-style
+    float                                           m_theta;
+    float                                           m_phi;
+    float                                           m_radius;
 
     DirectX::SimpleMath::Color                      m_roomColor;
 

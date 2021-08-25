@@ -58,14 +58,24 @@ private:
     std::unique_ptr<DX::DeviceResources>        m_deviceResources;
     std::unique_ptr<DirectX::GraphicsMemory>    m_graphicsMemory;
 
-    std::unique_ptr<DirectX::Keyboard>          m_keyboard;
-    std::unique_ptr<DirectX::Mouse>             m_mouse;
+    std::unique_ptr<DirectX::Keyboard>              m_keyboard;
+    std::unique_ptr<DirectX::Mouse>                 m_mouse;
 
     std::unique_ptr<DirectX::GeometricPrimitive>    m_room;
+
+    DirectX::SimpleMath::Matrix                     m_view;
     DirectX::SimpleMath::Matrix                     m_proj;
-    DirectX::SimpleMath::Vector3                    m_cameraPos;
+
+    // FPS-style
     float                                           m_pitch;
     float                                           m_yaw;
+    DirectX::SimpleMath::Vector3                    m_cameraPos;
+
+    // Orbit-style
+    float                                           m_theta;
+    float                                           m_phi;
+    float                                           m_radius;
+
     DirectX::SimpleMath::Color                      m_roomColor;
 
     Microsoft::WRL::ComPtr<ID3D12Resource>          m_roomTex;
@@ -77,5 +87,5 @@ private:
     DirectX::Mouse::ButtonStateTracker              m_mouseButtons;
 
     // Rendering loop timer.
-    DX::StepTimer                           m_timer;
+    DX::StepTimer                                   m_timer;
 };

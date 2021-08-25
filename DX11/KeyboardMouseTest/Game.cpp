@@ -12,18 +12,31 @@ using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
+#define ORBIT_STYLE
+
 namespace
 {
     const XMVECTORF32 START_POSITION = { 0.f, -1.5f, 0.f, 0.f };
     const XMVECTORF32 ROOM_BOUNDS = { 8.f, 6.f, 12.f, 0.f };
-    const float ROTATION_GAIN = 0.004f;
-    const float MOVEMENT_GAIN = 0.07f;
+    constexpr float ROTATION_GAIN = 0.004f;
+    constexpr float MOVEMENT_GAIN = 0.07f;
+
+    // Orbit-style
+    constexpr float c_defaultPhi = XM_2PI / 6.0f;
+    constexpr float c_defaultRadius = 3.3f;
+    constexpr float c_minRadius = 0.1f;
+    constexpr float c_maxRadius = 5.f;
 }
 
 Game::Game() noexcept(false) :
+    // FPS-style
     m_pitch(0),
     m_yaw(0),
     m_cameraPos(START_POSITION),
+    // Orbit-style
+    m_theta(0.f),
+    m_phi(c_defaultPhi),
+    m_radius(c_defaultRadius),
     m_roomColor(Colors::White)
 {
     m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -72,29 +85,24 @@ void Game::Update(DX::StepTimer const&)
     auto mouse = m_mouse->GetState();
     m_mouseButtons.Update(mouse);
 
+#ifdef ORBIT_STYLE
+    m_radius -= float(mouse.scrollWheelValue) * ROTATION_GAIN;
+    m_mouse->ResetScrollWheelValue();
+    m_radius = std::max(c_minRadius, std::min(c_maxRadius, m_radius));
+#endif
+
     if (mouse.positionMode == Mouse::MODE_RELATIVE)
     {
         Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
             * ROTATION_GAIN;
 
+#ifdef ORBIT_STYLE
+        m_phi -= delta.y;
+        m_theta -= delta.x;
+#else
         m_pitch -= delta.y;
         m_yaw -= delta.x;
-
-        // limit pitch to straight up or straight down
-        // with a little fudge-factor to avoid gimbal lock
-        float limit = XM_PI / 2.0f - 0.01f;
-        m_pitch = std::max(-limit, m_pitch);
-        m_pitch = std::min(+limit, m_pitch);
-
-        // keep longitude in sane range by wrapping
-        if (m_yaw > XM_PI)
-        {
-            m_yaw -= XM_PI * 2.0f;
-        }
-        else if (m_yaw < -XM_PI)
-        {
-            m_yaw += XM_PI * 2.0f;
-        }
+#endif
     }
 
     m_mouse->SetMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
@@ -110,8 +118,14 @@ void Game::Update(DX::StepTimer const&)
 
     if (kb.Home)
     {
+#ifdef ORBIT_STYLE
+        m_theta = 0.f;
+        m_phi = c_defaultPhi;
+        m_radius = c_defaultRadius;
+#else
         m_cameraPos = START_POSITION.v;
-        m_pitch = m_yaw = 0;
+        m_yaw = m_pitch = 0.f;
+#endif
     }
 
     Vector3 move = Vector3::Zero;
@@ -134,6 +148,13 @@ void Game::Update(DX::StepTimer const&)
     if (kb.PageDown || kb.X)
         move.z -= 1.f;
 
+#ifdef ORBIT_STYLE
+    move *= MOVEMENT_GAIN;
+
+    m_phi -= move.y;
+    m_theta -= move.x;
+    m_radius += move.z;
+#else
     Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
 
     move = Vector3::Transform(move, q);
@@ -147,6 +168,54 @@ void Game::Update(DX::StepTimer const&)
 
     m_cameraPos = Vector3::Min(m_cameraPos, halfBound);
     m_cameraPos = Vector3::Max(m_cameraPos, -halfBound);
+#endif
+
+#ifdef ORBIT_STYLE
+    // limit pitch to straight up or straight down
+    constexpr float limit = XM_PIDIV2 - 0.01f;
+    m_phi = std::max(1e-2f, std::min(limit, m_phi));
+
+    if (m_theta > XM_PI)
+    {
+        m_theta -= XM_2PI;
+    }
+    else if (m_theta < -XM_PI)
+    {
+        m_theta += XM_2PI;
+    }
+
+    XMVECTOR lookFrom = XMVectorSet(
+        m_radius * sinf(m_phi) * cosf(m_theta),
+        m_radius * cosf(m_phi),
+        m_radius * sinf(m_phi) * sinf(m_theta),
+        0);
+
+    m_view = XMMatrixLookAtRH(lookFrom, g_XMZero, Vector3::Up);
+#else
+    // limit pitch to straight up or straight down
+    constexpr float limit = XM_PIDIV2 - 0.01f;
+    m_pitch = std::max(-limit, m_pitch);
+    m_pitch = std::min(+limit, m_pitch);
+
+    // keep longitude in sane range by wrapping
+    if (m_yaw > XM_PI)
+    {
+        m_yaw -= XM_2PI;
+    }
+    else if (m_yaw < -XM_PI)
+    {
+        m_yaw += XM_2PI;
+    }
+
+    float y = sinf(m_pitch);
+    float r = cosf(m_pitch);
+    float z = r * cosf(m_yaw);
+    float x = r * sinf(m_yaw);
+
+    XMVECTOR lookAt = m_cameraPos + Vector3(x, y, z);
+
+    m_view = XMMatrixLookAtRH(m_cameraPos, lookAt, Vector3::Up);
+#endif
 
     if (m_keys.pressed.Tab || m_mouseButtons.rightButton == Mouse::ButtonStateTracker::PRESSED)
     {
@@ -179,16 +248,7 @@ void Game::Render()
     context;
 
     // TODO: Add your rendering code here.
-    float y = sinf(m_pitch);
-    float r = cosf(m_pitch);
-    float z = r * cosf(m_yaw);
-    float x = r * sinf(m_yaw);
-
-    XMVECTOR lookAt = m_cameraPos + Vector3(x, y, z);
-
-    XMMATRIX view = XMMatrixLookAtRH(m_cameraPos, lookAt, Vector3::Up);
-
-    m_room->Draw(Matrix::Identity, view, m_proj, m_roomColor, m_roomTex.Get());
+    m_room->Draw(Matrix::Identity, m_view, m_proj, m_roomColor, m_roomTex.Get());
 
     m_deviceResources->PIXEndEvent();
 
