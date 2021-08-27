@@ -6,6 +6,7 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "RenderTexture.h"
 
 
 // A basic game implementation that creates a D3D11 device and
@@ -87,18 +88,8 @@ private:
 #endif
 
 #if 1
-    Microsoft::WRL::ComPtr<ID3D11Texture2D>          m_sceneTex;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_sceneSRV;
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_sceneRT;
-
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_rt1SRV;
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_rt1RT;
-
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_rt2SRV;
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_rt2RT;
+    std::unique_ptr<DX::RenderTexture>               m_offscreenTexture;
+    std::unique_ptr<DX::RenderTexture>               m_renderTarget1;
+    std::unique_ptr<DX::RenderTexture>               m_renderTarget2;
 #endif
-
-    // SCREENSHOTS only
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture1;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> rtTexture2;
 };

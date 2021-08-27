@@ -121,6 +121,11 @@ Game::Game() noexcept(false) :
 {
     m_deviceResources = std::make_unique<DX::DeviceResources>();
     m_deviceResources->RegisterDeviceNotify(this);
+
+    const auto format = m_deviceResources->GetBackBufferFormat();
+    m_offscreenTexture = std::make_unique<DX::RenderTexture>(format);
+    m_renderTarget1 = std::make_unique<DX::RenderTexture>(format);
+    m_renderTarget2 = std::make_unique<DX::RenderTexture>(format);
 }
 
 // Initialize the Direct3D resources required to run.
@@ -206,13 +211,13 @@ void Game::Clear()
     // Clear the views.
     auto context = m_deviceResources->GetD3DDeviceContext();
 #if 1
-    auto renderTarget = m_sceneRT.Get();
+    auto renderTarget = m_offscreenTexture->GetRenderTargetView();
 #else
     auto renderTarget = m_deviceResources->GetRenderTargetView();
 #endif
     auto depthStencil = m_deviceResources->GetDepthStencilView();
 
-    context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
+    //context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
     context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 
@@ -233,18 +238,21 @@ void Game::PostProcess()
     if (g_Bloom == None)
     {
         // Pass-through test
-        context->CopyResource(m_deviceResources->GetRenderTarget(), m_sceneTex.Get());
+        context->CopyResource(m_deviceResources->GetRenderTarget(),
+            m_offscreenTexture->GetRenderTarget());
     }
     else
     {
         // scene -> RT1 (downsample)
-        context->OMSetRenderTargets(1, m_rt1RT.GetAddressOf(), nullptr);
+        auto rt1RT = m_renderTarget1->GetRenderTargetView();
+        context->OMSetRenderTargets(1, &rt1RT, nullptr);
         m_spriteBatch->Begin(SpriteSortMode_Immediate, nullptr, nullptr, nullptr, nullptr,
             [=](){
                 context->PSSetConstantBuffers(0, 1, m_bloomParams.GetAddressOf());
                 context->PSSetShader(m_bloomExtractPS.Get(), nullptr, 0);
             });
-        m_spriteBatch->Draw(m_sceneSRV.Get(), m_bloomRect);
+        auto rtSRV = m_offscreenTexture->GetShaderResourceView();
+        m_spriteBatch->Draw(rtSRV, m_bloomRect);
         m_spriteBatch->End();
 
         auto renderTarget = m_deviceResources->GetRenderTargetView();
@@ -253,17 +261,19 @@ void Game::PostProcess()
         // RT1 (1st) screenshot
         context->OMSetRenderTargets(1, &renderTarget, nullptr);
         m_spriteBatch->Begin();
-        m_spriteBatch->Draw(m_rt1SRV.Get(), m_bloomRect);
+        m_spriteBatch->Draw(m_renderTarget1->GetShaderResourceView(), m_bloomRect);
         m_spriteBatch->End();
         #else
         // RT1 -> RT2 (blur horizontal)
-        context->OMSetRenderTargets(1, m_rt2RT.GetAddressOf(), nullptr);
+        auto rt2RT = m_renderTarget2->GetRenderTargetView();
+        context->OMSetRenderTargets(1, &rt2RT, nullptr);
         m_spriteBatch->Begin(SpriteSortMode_Immediate, nullptr, nullptr, nullptr, nullptr,
             [=](){
                 context->PSSetShader(m_gaussianBlurPS.Get(), nullptr, 0);
                 context->PSSetConstantBuffers(0, 1, m_blurParamsWidth.GetAddressOf());
             });
-        m_spriteBatch->Draw(m_rt1SRV.Get(), m_bloomRect);
+        auto rt1SRV = m_renderTarget1->GetShaderResourceView();
+        m_spriteBatch->Draw(rt1SRV, m_bloomRect);
         m_spriteBatch->End();
 
         context->PSSetShaderResources(0, 2, null);
@@ -272,17 +282,18 @@ void Game::PostProcess()
         // RT2 (1st) screenshot
         context->OMSetRenderTargets(1, &renderTarget, nullptr);
         m_spriteBatch->Begin();
-        m_spriteBatch->Draw(m_rt2SRV.Get(), m_bloomRect);
+        m_spriteBatch->Draw(m_renderTarget2->GetShaderResourceView(), m_bloomRect);
         m_spriteBatch->End();
         #else
         // RT2 -> RT1 (blur vertical)
-        context->OMSetRenderTargets(1, m_rt1RT.GetAddressOf(), nullptr);
+        context->OMSetRenderTargets(1, &rt1RT, nullptr);
         m_spriteBatch->Begin(SpriteSortMode_Immediate, nullptr, nullptr, nullptr, nullptr,
             [=](){
                 context->PSSetShader(m_gaussianBlurPS.Get(), nullptr, 0);
                 context->PSSetConstantBuffers(0, 1, m_blurParamsHeight.GetAddressOf());
             });
-        m_spriteBatch->Draw(m_rt2SRV.Get(), m_bloomRect);
+        auto rt2SRV = m_renderTarget2->GetShaderResourceView();
+        m_spriteBatch->Draw(rt2SRV, m_bloomRect);
         m_spriteBatch->End();
 
         #if 0
@@ -297,10 +308,10 @@ void Game::PostProcess()
         m_spriteBatch->Begin(SpriteSortMode_Immediate, nullptr, nullptr, nullptr, nullptr,
             [=](){
                 context->PSSetShader(m_bloomCombinePS.Get(), nullptr, 0);
-                context->PSSetShaderResources(1, 1, m_rt1SRV.GetAddressOf());
+                context->PSSetShaderResources(1, 1, &rt1SRV);
                 context->PSSetConstantBuffers(0, 1, m_bloomParams.GetAddressOf());
             });
-        m_spriteBatch->Draw(m_sceneSRV.Get(), m_fullscreenRect);
+        m_spriteBatch->Draw(rtSRV, m_fullscreenRect);
         m_spriteBatch->End();
         #endif
         #endif
@@ -444,6 +455,10 @@ void Game::CreateDeviceDependentResources()
         DX::ThrowIfFailed(device->CreateBuffer(&cbDesc, nullptr, m_blurParamsWidth.ReleaseAndGetAddressOf()));
         DX::ThrowIfFailed(device->CreateBuffer(&cbDesc, nullptr, m_blurParamsHeight.ReleaseAndGetAddressOf()));
     }
+
+    m_offscreenTexture->SetDevice(device);
+    m_renderTarget1->SetDevice(device);
+    m_renderTarget2->SetDevice(device);
 #endif
 
     m_view = Matrix::CreateLookAt(Vector3(0.f, 3.f, -3.f), Vector3::Zero, Vector3::UnitY);
@@ -471,31 +486,13 @@ void Game::CreateWindowSizeDependentResources()
 #endif
 
 #if 1
-    auto device = m_deviceResources->GetD3DDevice();
-    DXGI_FORMAT backBufferFormat = m_deviceResources->GetBackBufferFormat();
-
-    // Full-size render target for scene
-    CD3D11_TEXTURE2D_DESC sceneDesc(backBufferFormat, size.right, size.bottom, 1, 1,
-                                    D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
-    DX::ThrowIfFailed(device->CreateTexture2D(&sceneDesc, nullptr, m_sceneTex.GetAddressOf()));
-    DX::ThrowIfFailed(device->CreateRenderTargetView(m_sceneTex.Get(), nullptr, m_sceneRT.ReleaseAndGetAddressOf()));
-    DX::ThrowIfFailed(device->CreateShaderResourceView(m_sceneTex.Get(), nullptr, m_sceneSRV.ReleaseAndGetAddressOf()));
+    m_offscreenTexture->SetWindow(size);
 
     // Half-size blurring render targets
-    CD3D11_TEXTURE2D_DESC rtDesc(backBufferFormat, size.right / 2, size.bottom / 2, 1, 1,
-                                      D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
-
-    //ComPtr<ID3D11Texture2D> rtTexture1;
-    DX::ThrowIfFailed(device->CreateTexture2D(&rtDesc, nullptr, rtTexture1.GetAddressOf()));
-    DX::ThrowIfFailed(device->CreateRenderTargetView(rtTexture1.Get(), nullptr, m_rt1RT.ReleaseAndGetAddressOf()));
-    DX::ThrowIfFailed(device->CreateShaderResourceView(rtTexture1.Get(), nullptr, m_rt1SRV.ReleaseAndGetAddressOf()));
-
-    //ComPtr<ID3D11Texture2D> rtTexture2;
-    DX::ThrowIfFailed(device->CreateTexture2D(&rtDesc, nullptr, rtTexture2.GetAddressOf()));
-    DX::ThrowIfFailed(device->CreateRenderTargetView(rtTexture2.Get(), nullptr, m_rt2RT.ReleaseAndGetAddressOf()));
-    DX::ThrowIfFailed(device->CreateShaderResourceView(rtTexture2.Get(), nullptr, m_rt2SRV.ReleaseAndGetAddressOf()));
-
     m_bloomRect = { 0, 0, size.right / 2, size.bottom / 2 };
+
+    m_renderTarget1->SetWindow(m_bloomRect);
+    m_renderTarget2->SetWindow(m_bloomRect);
 #endif
 }
 
@@ -518,16 +515,9 @@ void Game::OnDeviceLost()
 #endif
 
 #if 1
-    m_sceneTex.Reset();
-    m_sceneSRV.Reset();
-    m_sceneRT.Reset();
-    m_rt1SRV.Reset();
-    m_rt1RT.Reset();
-    m_rt2SRV.Reset();
-    m_rt2RT.Reset();
-
-    rtTexture1.Reset();
-    rtTexture2.Reset();
+    m_offscreenTexture->ReleaseDevice();
+    m_renderTarget1->ReleaseDevice();
+    m_renderTarget2->ReleaseDevice();
 #endif
 }
 

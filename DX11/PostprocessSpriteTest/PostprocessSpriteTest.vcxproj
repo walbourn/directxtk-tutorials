@@ -172,12 +172,14 @@
   <ItemGroup>
     <ClInclude Include="..\Common\DeviceResources.h" />
     <ClInclude Include="..\Common\ReadData.h" />
+    <ClInclude Include="..\Common\RenderTexture.h" />
     <ClInclude Include="..\Common\StepTimer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\DeviceResources.cpp" />
+    <ClCompile Include="..\Common\RenderTexture.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">

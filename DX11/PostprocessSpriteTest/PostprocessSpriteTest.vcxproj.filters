@@ -21,12 +21,18 @@
     <ClInclude Include="..\Common\ReadData.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\RenderTexture.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="..\Common\DeviceResources.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\RenderTexture.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
