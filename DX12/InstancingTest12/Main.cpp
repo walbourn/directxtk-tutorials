@@ -28,7 +28,7 @@ namespace
     std::unique_ptr<Game> g_game;
 }
 
-LPCWSTR g_szAppName = L"InstancingTest";
+LPCWSTR g_szAppName = L"InstancingTest12";
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 

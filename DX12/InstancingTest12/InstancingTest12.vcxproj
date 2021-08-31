@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <RootNamespace>InstancingTest</RootNamespace>
+    <RootNamespace>InstancingTest12</RootNamespace>
     <ProjectGuid>{ab85945f-1ad1-4f4b-ac29-6a725a513cb6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
