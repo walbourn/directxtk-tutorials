@@ -270,10 +270,10 @@ void Game::CreateDeviceDependentResources()
     DX::ThrowIfFailed(
         CreateWICTextureFromFile(device, resourceUpload,
             L"Sphere2Mat_baseColor.png",
-            m_albetoMap.ReleaseAndGetAddressOf()));
+            m_albedoMap.ReleaseAndGetAddressOf()));
 
-    CreateShaderResourceView(device, m_albetoMap.Get(),
-        m_resourceDescriptors->GetCpuHandle(Descriptors::AlbetoMap));
+    CreateShaderResourceView(device, m_albedoMap.Get(),
+        m_resourceDescriptors->GetCpuHandle(Descriptors::AlbedoMap));
 
     DX::ThrowIfFailed(
         CreateWICTextureFromFile(device, resourceUpload,
@@ -331,7 +331,7 @@ void Game::CreateDeviceDependentResources()
 
 #if 1
     m_effect->SetSurfaceTextures(
-        m_resourceDescriptors->GetGpuHandle(Descriptors::AlbetoMap),
+        m_resourceDescriptors->GetGpuHandle(Descriptors::AlbedoMap),
         m_resourceDescriptors->GetGpuHandle(Descriptors::NormalMap),
         m_resourceDescriptors->GetGpuHandle(Descriptors::RMAMap),
         m_states->AnisotropicClamp());
@@ -375,7 +375,7 @@ void Game::OnDeviceLost()
     m_resourceDescriptors.reset();
     m_renderDescriptors.reset();
 
-    m_albetoMap.Reset();
+    m_albedoMap.Reset();
     m_normalMap.Reset();
     m_rmaMap.Reset();
     m_emissiveMap.Reset();

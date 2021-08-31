@@ -85,7 +85,7 @@ private:
         SceneTex,
         RadianceIBL,
         IrradianceIBL,
-        AlbetoMap,
+        AlbedoMap,
         NormalMap,
         RMAMap,
         EmissiveMap,
@@ -98,7 +98,7 @@ private:
         RTCount
     };
 
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_albetoMap;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_albedoMap;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_normalMap;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_rmaMap;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_emissiveMap;

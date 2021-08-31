@@ -77,7 +77,7 @@ private:
     std::unique_ptr<DX::RenderTexture>              m_hdrScene;
     std::unique_ptr<DirectX::ToneMapPostProcess>    m_toneMap;
 
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>    m_albetoMap;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>    m_albedoMap;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>    m_normalMap;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>    m_rmaMap;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>    m_emissiveMap;

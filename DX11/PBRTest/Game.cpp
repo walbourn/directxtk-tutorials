@@ -224,7 +224,7 @@ void Game::CreateDeviceDependentResources()
     DX::ThrowIfFailed(
         CreateWICTextureFromFile(device, L"Sphere2Mat_baseColor.png",
             nullptr,
-            m_albetoMap.ReleaseAndGetAddressOf()));
+            m_albedoMap.ReleaseAndGetAddressOf()));
 
     DX::ThrowIfFailed(
         CreateWICTextureFromFile(device, L"Sphere2Mat_normal.png",
@@ -241,7 +241,7 @@ void Game::CreateDeviceDependentResources()
             nullptr,
             m_emissiveMap.ReleaseAndGetAddressOf()));
 
-    m_effect->SetSurfaceTextures(m_albetoMap.Get(), m_normalMap.Get(), m_rmaMap.Get());
+    m_effect->SetSurfaceTextures(m_albedoMap.Get(), m_normalMap.Get(), m_rmaMap.Get());
     m_effect->SetEmissiveTexture(m_emissiveMap.Get());
 #endif
 }
@@ -275,7 +275,7 @@ void Game::OnDeviceLost()
     m_hdrScene->ReleaseDevice();
     m_toneMap.reset();
 
-    m_albetoMap.Reset();
+    m_albedoMap.Reset();
     m_normalMap.Reset();
     m_rmaMap.Reset();
     m_emissiveMap.Reset();
