@@ -18,7 +18,7 @@ namespace DX
     class SkyboxEffect : public DirectX::IEffect, public DirectX::IEffectMatrices
     {
     public:
-        explicit SkyboxEffect(_In_ ID3D12Device* device, const DirectX::EffectPipelineStateDescription& pipelineStateDesc);
+        SkyboxEffect(_In_ ID3D12Device* device, const DirectX::EffectPipelineStateDescription& pipelineStateDesc);
 
         SkyboxEffect(SkyboxEffect&&) = default;
         SkyboxEffect& operator= (SkyboxEffect&&) = default;

@@ -271,7 +271,7 @@ void Game::CreateDeviceDependentResources()
 
     DX::ThrowIfFailed(
         CreateDDSTextureFromFile(device, resourceUpload, L"lobbycube.dds",
-            m_cubemap.ReleaseAndGetAddressOf(), false));
+            m_cubemap.ReleaseAndGetAddressOf()));
 
     CreateShaderResourceView(device, m_cubemap.Get(),
         m_resourceDescriptors->GetFirstCpuHandle(), true);
