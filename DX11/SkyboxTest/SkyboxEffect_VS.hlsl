@@ -16,7 +16,7 @@ VSOutput main(float4 position : SV_Position)
     vout.PositionPS = mul(position, WorldViewProj);
     vout.PositionPS.z = vout.PositionPS.w; // Draw on far plane
     
-#if 1
+#if 0
     vout.TexCoord.x = -position.x;
     vout.TexCoord.yz = position.yz;
 #else
