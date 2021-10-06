@@ -34,6 +34,9 @@
 #include <wrl/client.h>
 #include <wrl/event.h>
 
+#define D3DX12_NO_STATE_OBJECT_HELPERS
+#define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
+
 #ifdef USING_DIRECTX_HEADERS
 #include <directx/dxgiformat.h>
 #include <directx/d3d12.h>
