@@ -68,6 +68,9 @@ private:
     std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
     std::unique_ptr<DirectX::Model> m_model;
 
+    DirectX::ModelBone::TransformArray m_drawBones;
+    DirectX::ModelBone::TransformArray m_animBones;
+
     uint32_t m_leftBackWheelBone;
     uint32_t m_rightBackWheelBone;
     uint32_t m_leftFrontWheelBone;
@@ -77,7 +80,4 @@ private:
     uint32_t m_turretBone;
     uint32_t m_cannonBone;
     uint32_t m_hatchBone;
-
-    DirectX::ModelBone::TransformArray m_drawBones;
-    DirectX::ModelBone::TransformArray m_animBones;
 };

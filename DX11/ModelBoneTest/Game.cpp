@@ -64,6 +64,8 @@ void Game::Update(DX::StepTimer const& timer)
     // TODO: Add your game logic here.
     float time = float(timer.GetTotalSeconds());
 
+    m_world = XMMatrixRotationY(time * 0.1f);
+
 #if 1
     float wheelRotation = time * 5.f;
     float steerRotation = sinf(time * 0.75f) * 0.5f;
@@ -72,27 +74,32 @@ void Game::Update(DX::StepTimer const& timer)
     float hatchRotation = std::min(0.f, std::max(sinf(time * 2.f) * 2.f, -1.f));
 
     XMMATRIX mat = XMMatrixRotationX(wheelRotation);
-    m_animBones[m_leftFrontWheelBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_leftFrontWheelBone]);
-    m_animBones[m_rightFrontWheelBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_rightFrontWheelBone]);
-    m_animBones[m_leftBackWheelBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_leftBackWheelBone]);
-    m_animBones[m_rightBackWheelBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_rightBackWheelBone]);
+    m_animBones[m_leftFrontWheelBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_leftFrontWheelBone]);
+    m_animBones[m_rightFrontWheelBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_rightFrontWheelBone]);
+    m_animBones[m_leftBackWheelBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_leftBackWheelBone]);
+    m_animBones[m_rightBackWheelBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_rightBackWheelBone]);
 
     mat = XMMatrixRotationX(steerRotation);
-    m_animBones[m_leftSteerBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_leftSteerBone]);
-    m_animBones[m_rightSteerBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_rightSteerBone]);
+    m_animBones[m_leftSteerBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_leftSteerBone]);
+    m_animBones[m_rightSteerBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_rightSteerBone]);
 
     mat = XMMatrixRotationY(turretRotation);
-    m_animBones[m_turretBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_turretBone]);
+    m_animBones[m_turretBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_turretBone]);
 
     mat = XMMatrixRotationX(cannonRotation);
-    m_animBones[m_cannonBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_cannonBone]);
+    m_animBones[m_cannonBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_cannonBone]);
 
     mat = XMMatrixRotationX(hatchRotation);
-    m_animBones[m_hatchBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_hatchBone]);
-#endif
-
-#if 1
-    m_world = XMMatrixRotationY(time * 0.1f);
+    m_animBones[m_hatchBone] = XMMatrixMultiply(mat,
+        m_model->boneMatrices[m_hatchBone]);
 #endif
 }
 #pragma endregion
@@ -118,9 +125,11 @@ void Game::Render()
 #else
     size_t nbones = m_model->bones.size();
 
-    m_model->CopyAbsoluteBoneTransforms(nbones, m_animBones.get(), m_drawBones.get());
+    m_model->CopyAbsoluteBoneTransforms(nbones,
+        m_animBones.get(), m_drawBones.get());
 
-    m_model->Draw(context, *m_states, nbones, m_drawBones.get(), m_world, m_view, m_proj);
+    m_model->Draw(context, *m_states, nbones, m_drawBones.get(),
+        m_world, m_view, m_proj);
 #endif
 
     m_deviceResources->PIXEndEvent();
@@ -215,7 +224,8 @@ void Game::CreateDeviceDependentResources()
         ModelLoader_CounterClockwise | ModelLoader_IncludeBones);
 
     m_world = Matrix::Identity;
-    
+
+#if 1
     const size_t nbones = m_model->bones.size();
 
     m_drawBones = ModelBone::MakeArray(nbones);
@@ -223,6 +233,7 @@ void Game::CreateDeviceDependentResources()
 
     m_model->CopyBoneTransformsTo(nbones, m_animBones.get());
 
+#if 1
     uint32_t index = 0;
     for (const auto& it : m_model->bones)
     {
@@ -232,46 +243,22 @@ void Game::CreateDeviceDependentResources()
             m_animBones[index] = XMMatrixIdentity();
         }
 #if 1
-        else if (_wcsicmp(it.name.c_str(), L"l_back_wheel_geo") == 0)
-        {
-            m_leftBackWheelBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"r_back_wheel_geo") == 0)
-        {
-            m_rightBackWheelBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"l_front_wheel_geo") == 0)
-        {
-            m_leftFrontWheelBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"r_front_wheel_geo") == 0)
-        {
-            m_rightFrontWheelBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"l_steer_geo") == 0)
-        {
-            m_leftSteerBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"r_steer_geo") == 0)
-        {
-            m_rightSteerBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"turret_geo") == 0)
-        {
-            m_turretBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"canon_geo") == 0)
-        {
-            m_cannonBone = index;
-        }
-        else if (_wcsicmp(it.name.c_str(), L"hatch_geo") == 0)
-        {
-            m_hatchBone = index;
-        }
+        else if (_wcsicmp(it.name.c_str(), L"l_back_wheel_geo") == 0) { m_leftBackWheelBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"r_back_wheel_geo") == 0) { m_rightBackWheelBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"l_front_wheel_geo") == 0) { m_leftFrontWheelBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"r_front_wheel_geo") == 0) { m_rightFrontWheelBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"l_steer_geo") == 0) { m_leftSteerBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"r_steer_geo") == 0) { m_rightSteerBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"turret_geo") == 0) { m_turretBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"canon_geo") == 0) { m_cannonBone = index; }
+        else if (_wcsicmp(it.name.c_str(), L"hatch_geo") == 0) { m_hatchBone = index; }
 #endif
 
         ++index;
     }
+
+#endif
+#endif
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -291,9 +278,6 @@ void Game::OnDeviceLost()
     m_states.reset();
     m_fxFactory.reset();
     m_model.reset();
-
-    m_drawBones.reset();
-    m_animBones.reset();
 }
 
 void Game::OnDeviceRestored()
