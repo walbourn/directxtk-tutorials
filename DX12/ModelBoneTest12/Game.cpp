@@ -73,6 +73,7 @@ void Game::Update(DX::StepTimer const& timer)
 
     float time = float(timer.GetTotalSeconds());
 
+#if 1
     float wheelRotation = time * 5.f;
     float steerRotation = sinf(time * 0.75f) * 0.5f;
     float turretRotation = sinf(time * 0.333f) * 1.25f;
@@ -97,8 +98,11 @@ void Game::Update(DX::StepTimer const& timer)
 
     mat = XMMatrixRotationX(hatchRotation);
     m_animBones[m_hatchBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_hatchBone]);
+#endif
 
+#if 1
     m_world = XMMatrixRotationY(time * 0.1f);
+#endif
 
     PIXEndEvent();
 }
@@ -122,6 +126,14 @@ void Game::Render()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
     // TODO: Add your rendering code here.
+#if 0
+    ID3D12DescriptorHeap* heaps[] = { m_modelResources->Heap(), m_states->Heap() };
+    commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
+
+    Model::UpdateEffectMatrices(m_modelNormal, m_world, m_view, m_proj);
+
+    m_model->Draw(commandList, m_modelNormal.cbegin());
+#else
     size_t nbones = m_model->bones.size();
 
     m_model->CopyAbsoluteBoneTransforms(nbones, m_animBones.get(), m_drawBones.get());
@@ -132,6 +144,7 @@ void Game::Render()
     Model::UpdateEffectMatrices(m_modelNormal, m_world, m_view, m_proj);
 
     m_model->Draw(commandList, nbones, m_drawBones.get(), m_world, m_modelNormal.cbegin());
+#endif
 
     PIXEndEvent(commandList);
 
@@ -266,6 +279,7 @@ void Game::CreateDeviceDependentResources()
 
     m_world = Matrix::Identity;
 
+#if 1
     const size_t nbones = m_model->bones.size();
 
     m_drawBones = ModelBone::MakeArray(nbones);
@@ -281,6 +295,7 @@ void Game::CreateDeviceDependentResources()
             // Need to recenter the model.
             m_animBones[index] = XMMatrixIdentity();
         }
+#if 1
         else if (_wcsicmp(it.name.c_str(), L"l_back_wheel_geo") == 0)
         {
             m_leftBackWheelBone = index;
@@ -317,9 +332,11 @@ void Game::CreateDeviceDependentResources()
         {
             m_hatchBone = index;
         }
+#endif
 
         ++index;
     }
+#endif
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.

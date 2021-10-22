@@ -64,6 +64,7 @@ void Game::Update(DX::StepTimer const& timer)
     // TODO: Add your game logic here.
     float time = float(timer.GetTotalSeconds());
 
+#if 1
     float wheelRotation = time * 5.f;
     float steerRotation = sinf(time * 0.75f) * 0.5f;
     float turretRotation = sinf(time * 0.333f) * 1.25f;
@@ -88,8 +89,11 @@ void Game::Update(DX::StepTimer const& timer)
 
     mat = XMMatrixRotationX(hatchRotation);
     m_animBones[m_hatchBone] = XMMatrixMultiply(mat, m_model->boneMatrices[m_hatchBone]);
+#endif
 
+#if 1
     m_world = XMMatrixRotationY(time * 0.1f);
+#endif
 }
 #pragma endregion
 
@@ -109,11 +113,15 @@ void Game::Render()
     auto context = m_deviceResources->GetD3DDeviceContext();
 
     // TODO: Add your rendering code here.
+#if 0
+    m_model->Draw(context, *m_states, m_world, m_view, m_proj);
+#else
     size_t nbones = m_model->bones.size();
 
     m_model->CopyAbsoluteBoneTransforms(nbones, m_animBones.get(), m_drawBones.get());
 
     m_model->Draw(context, *m_states, nbones, m_drawBones.get(), m_world, m_view, m_proj);
+#endif
 
     m_deviceResources->PIXEndEvent();
 
@@ -223,6 +231,7 @@ void Game::CreateDeviceDependentResources()
             // Need to recenter the model.
             m_animBones[index] = XMMatrixIdentity();
         }
+#if 1
         else if (_wcsicmp(it.name.c_str(), L"l_back_wheel_geo") == 0)
         {
             m_leftBackWheelBone = index;
@@ -259,6 +268,7 @@ void Game::CreateDeviceDependentResources()
         {
             m_hatchBone = index;
         }
+#endif
 
         ++index;
     }
