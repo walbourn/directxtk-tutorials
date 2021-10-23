@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>44c10e10-7fa6-4c0c-ba2e-5ab367094538</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>6217ce0d-907b-4495-bbe3-495a0b95a2dd</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="..\Common\DeviceResources.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\StepTimer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="..\Common\DeviceResources.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="directx.ico">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="head_diff.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="head_norm.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="jacket_diff.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="jacket_norm.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="pants_diff.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="pants_norm.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="upBody_diff.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="upbody_norm.dds">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\Common\settings.manifest">
+      <Filter>Assets</Filter>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="teapot.cmo">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="soldier.sdkmesh">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="soldier.sdkmesh_anim">
+      <Filter>Assets</Filter>
+    </None>
+  </ItemGroup>
+</Project>
