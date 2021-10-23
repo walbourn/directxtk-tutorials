@@ -221,14 +221,18 @@ void Game::CreateDeviceDependentResources()
     m_model->materials[0].diffuseTextureIndex = 0;
     m_model->materials[0].samplerIndex = static_cast<int>(CommonStates::SamplerIndex::AnisotropicClamp);
 
-    m_animation.Load(L"teapot.cmo", animsOffset);
+    DX::ThrowIfFailed(
+        m_animation.Load(L"teapot.cmo", animsOffset)
+    );
     m_animation.Bind(*m_model);
 
     const auto& cull = CommonStates::CullCounterClockwise;
 #else
     m_model = Model::CreateFromSDKMESH(device, L"soldier.sdkmesh", ModelLoader_IncludeBones);
 
-    m_animation.Load(L"soldier.sdkmesh_anim");
+    DX::ThrowIfFailed(
+        m_animation.Load(L"soldier.sdkmesh_anim")
+    );
     m_animation.Bind(*m_model);
 
     m_drawBones = ModelBone::MakeArray(m_model->bones.size());

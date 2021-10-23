@@ -180,7 +180,9 @@ void Game::CreateDeviceDependentResources()
         *m_fxFactory,
         ModelLoader_CounterClockwise | ModelLoader_IncludeBones, &animsOffset);
 
-    m_animation.Load(L"teapot.cmo", animsOffset);
+    DX::ThrowIfFailed(
+        m_animation.Load(L"teapot.cmo", animsOffset)
+    );
     m_animation.Bind(*m_model);
 
     m_drawBones = ModelBone::MakeArray(m_model->bones.size());
@@ -198,7 +200,9 @@ void Game::CreateDeviceDependentResources()
         *m_fxFactory,
         ModelLoader_Clockwise | ModelLoader_IncludeBones);
 
-    m_animation.Load(L"soldier.sdkmesh_anim");
+    DX::ThrowIfFailed(
+        m_animation.Load(L"soldier.sdkmesh_anim")
+    );
     m_animation.Bind(*m_model);
 
     m_drawBones = ModelBone::MakeArray(m_model->bones.size());
