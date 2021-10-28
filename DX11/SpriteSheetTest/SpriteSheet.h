@@ -11,6 +11,7 @@
 
 #include <exception>
 #include <fstream>
+#include <locale>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -64,6 +65,8 @@ public:
             std::wifstream inFile(szFileName);
             if (!inFile)
                 throw std::runtime_error("SpriteSheet failed to load .txt data");
+
+            inFile.imbue(std::locale::classic());
 
             wchar_t strLine[1024] = {};
             for (;;)
