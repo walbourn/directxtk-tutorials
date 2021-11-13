@@ -54,9 +54,9 @@ void Game::Update(DX::StepTimer const& timer)
 {
     float elapsedTime = float(timer.GetElapsedSeconds());
 
+    // TODO: Add your game logic here.
     m_animation.Update(elapsedTime);
 
-    // TODO: Add your game logic here.
     float time = float(timer.GetTotalSeconds());
 
     m_world = XMMatrixRotationY(time);
