@@ -190,8 +190,13 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-    auto r = m_deviceResources->GetOutputSize();
+    auto const r = m_deviceResources->GetOutputSize();
     m_deviceResources->WindowSizeChanged(r.right, r.bottom);
+}
+
+void Game::OnDisplayChange()
+{
+    m_deviceResources->UpdateColorSpace();
 }
 
 void Game::OnWindowSizeChanged(int width, int height)

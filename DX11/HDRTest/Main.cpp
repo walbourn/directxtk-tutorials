@@ -22,6 +22,7 @@ namespace
 LPCWSTR g_szAppName = L"HDRTest";
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void ExitGame() noexcept;
 
 // Indicates to hybrid graphics systems to prefer the discrete part by default
 extern "C"
@@ -81,7 +82,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         ShowWindow(hwnd, nCmdShow);
         // TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
 
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(g_game.get()) );
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(g_game.get()));
 
         GetClientRect(hwnd, &rc);
 
@@ -133,6 +134,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             (void)BeginPaint(hWnd, &ps);
             EndPaint(hWnd, &ps);
+        }
+        break;
+
+    case WM_DISPLAYCHANGE:
+        if (game)
+        {
+            game->OnDisplayChange();
         }
         break;
 
