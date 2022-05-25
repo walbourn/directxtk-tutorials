@@ -188,6 +188,7 @@ void Game::CreateDeviceDependentResources()
     // TODO: Initialize device dependent objects here (independent of window size).
     m_states = std::make_unique<CommonStates>(device);
     m_effect = std::make_unique<PBREffect>(device);
+    m_effect->EnableDefaultLighting();
 
     auto context = m_deviceResources->GetD3DDeviceContext();
     m_shape = GeometricPrimitive::CreateSphere(context);

@@ -258,6 +258,8 @@ void Game::CreateDeviceDependentResources()
 #else
         m_effect = std::make_unique<PBREffect>(device, EffectFlags::None, pd);
 #endif
+
+        m_effect->EnableDefaultLighting();
     }
 
     ResourceUploadBatch resourceUpload(device);
