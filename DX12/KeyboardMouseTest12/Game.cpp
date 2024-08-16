@@ -162,7 +162,9 @@ void Game::Update(DX::StepTimer const&)
 
     m_phi -= move.y;
     m_theta -= move.x;
-    m_radius += move.z;
+
+    // Invert the Z to get same 'closer' / 'further' behavior as we had before.
+    m_radius -= move.z;
 #else
     Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.f);
 
