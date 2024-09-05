@@ -12,7 +12,7 @@ using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-#define ORBIT_STYLE
+//#define ORBIT_STYLE
 
 namespace
 {
