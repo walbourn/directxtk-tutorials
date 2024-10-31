@@ -68,7 +68,7 @@ void MSAAHelper::SetDevice(_In_ ID3D12Device* device)
         {
 #ifdef _DEBUG
             char buff[128] = {};
-            sprintf_s(buff, "MSAAHelper: Device does not support MSAA for requested backbuffer format (%u)!\n", m_backBufferFormat);
+            sprintf_s(buff, "MSAAHelper: Device does not support MSAA for requested backbuffer format (%d)!\n", m_backBufferFormat);
             OutputDebugStringA(buff);
 #endif
             throw std::exception();
@@ -88,7 +88,7 @@ void MSAAHelper::SetDevice(_In_ ID3D12Device* device)
         {
 #ifdef _DEBUG
             char buff[128] = {};
-            sprintf_s(buff, "MSAAHelper: Device does not support MSAA for requested depth/stencil format (%u)!\n", m_depthBufferFormat);
+            sprintf_s(buff, "MSAAHelper: Device does not support MSAA for requested depth/stencil format (%d)!\n", m_depthBufferFormat);
             OutputDebugStringA(buff);
 #endif
             throw std::exception();
