@@ -190,7 +190,7 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-    auto const r = m_deviceResources->GetOutputSize();
+    const auto r = m_deviceResources->GetOutputSize();
     m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
